@@ -28,18 +28,16 @@ object O2Controller {
 
 	/* A lot of work gets done here */
 	def changePassage: Unit = {
-		val timeStart = new js.Date().getTime()
+		O2View.cursorWaiting
+		O2Model.getPrevNextUrn(O2Model.urn.value)
+		g.console.log(s"Doing changePassage with ${O2Model.urn.value}")
 		val newUrn: CtsUrn = O2Model.urn.value
-		O2Model.updateUrnHistory(newUrn)
-		val task1 = Task{
-				O2Model.versionsForUrn(newUrn)
-				//O2Model.displayPassage(newUrn)
-				val timeEnd = new js.Date().getTime()
-				//O2Controller.updateUserMessage(s"Fetched ${O2Model.currentNumberOfCitableNodes.value} citation objects in ${(timeEnd - timeStart)/1000} seconds.",0)
-		}
-		val future1 = task1.runAsync
-		//val task2 = Task{ O2Model.getPrevNextUrn(O2Model.urn.value) }
-		//val future2 = task2.runAsync
+
+		val task = Task{ CiteMainQuery.getJson(O2Query.getLabelForUrnHistory, s"${O2Query.queryLabelForUrn}${newUrn}", urn = Some(newUrn)) }
+		val future = task.runAsync	
+		O2Model.versionsForUrn(newUrn)
+		val task2 = Task{ CiteMainQuery.getJson(O2Query.getCorpus, s"${O2Query.queryGetCorpus}${newUrn}", urn = Some(newUrn))}
+		val future2 = task2.runAsync
 	}
 
 
@@ -69,13 +67,13 @@ object O2Controller {
 
 	def getNext:Unit = {
 		if (O2Model.currentNext.value != None){
-			//changeUrn(O2Model.currentNext.value.get)
+			changeUrn(O2Model.currentNext.value.get)
 		}
 	}
 
 	def getPrev:Unit = {
 		if (O2Model.currentPrev.value != None){
-			//changeUrn(O2Model.currentPrev.value.get)
+			changeUrn(O2Model.currentPrev.value.get)
 		}
 	}
 
@@ -92,15 +90,7 @@ object O2Controller {
 			O2Model.displayUrn.value = urn
 			validUrnInField.value = true
 			O2Controller.updateUserMessage("Retrieving passage…",1)
-			//val task = Task{	O2Controller.changePassage }
-			//val future = task.runAsync
-			/*
-			js.timers.setTimeout(200){
-				Future{
-					O2Controller.changePassage
-				}
-			}
-			*/
+			O2Controller.changePassage
 
 		} catch {
 			case e: Exception => {
@@ -123,7 +113,7 @@ object O2Controller {
 	def preloadUrn = {
 		if (O2Model.citedWorks.value.length > 0) {
 			val firstWork:CtsUrn = O2Model.citedWorks.value(0)
-			val task = Task{ CiteMainQuery.getJson(O2Query.getFirstUrn, s"${O2Query.queryFirstUrn}${firstWork.toString}") }
+			val task = Task{ CiteMainQuery.getJson(O2Query.getFirstUrn, s"${O2Query.queryFirstUrn}${firstWork.toString}", urn = None) }
 			val future = task.runAsync	
 		}
 	}

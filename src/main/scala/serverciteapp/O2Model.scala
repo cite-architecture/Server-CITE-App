@@ -40,12 +40,13 @@ object O2Model {
 
 
 	// Add an entry to the citation-history
-	def updateUrnHistory(u:CtsUrn):Unit = {
-		/*
+	def updateUrnHistory(u:CtsUrn, label:String):Unit = {
+		g.console.log(s"Updating urnhistory with ${u} and ${label}")
 		try {
 			if (hasTextRepo.value) {
+				g.console.log("hasTextRepo.value == true")
 				val tempList:List[Tuple2[CtsUrn,String]] = urnHistory.value.toList.reverse.map(t => { Tuple2(t._2, t._3)})
-				val newTempList:List[Tuple2[CtsUrn,String]] = tempList ++ List(Tuple2(u,textRepo.value.get.label(u)))
+				val newTempList:List[Tuple2[CtsUrn,String]] = tempList ++ List(Tuple2(u,label))
 				val indexedTempList:List[Tuple3[Int,CtsUrn,String]] = newTempList.zipWithIndex.map( t => {
 					Tuple3((t._2 + 1),t._1._1,t._1._2)
 				})
@@ -56,7 +57,6 @@ object O2Model {
 		} catch{
 			case e:Exception => O2Controller.updateUserMessage(s"Unable to make label for ${u}: ${e}",2)
 		}
-		*/
 	}
 
 
@@ -84,18 +84,20 @@ object O2Model {
 		if (O2Model.hasTextRepo.value){
 				val s = s"urn:cts:${urn.namespace}:${urn.textGroup}.${urn.work}:"
 				val u = CtsUrn(s)
-				val task = Task{ CiteMainQuery.getJson(O2Query.getVersionsForUrn, s"${O2Query.queryTextCatalog}/${u}") }
+				val task = Task{ CiteMainQuery.getJson(O2Query.getVersionsForUrn, s"${O2Query.queryTextCatalog}/${u}", urn = None) }
 				val future = task.runAsync
 		}
 		versions
 	}
 
-	/*
 	def getPrevNextUrn(urn:CtsUrn):Unit = {
-		O2Model.currentPrev.value = O2Model.textRepo.value.get.corpus.prevUrn(urn)
-		O2Model.currentNext.value = O2Model.textRepo.value.get.corpus.nextUrn(urn)
+				O2Model.currentPrev.value = None
+				O2Model.currentNext.value = None
+				val taskPrev = Task{ CiteMainQuery.getJson(O2Query.getPrev, s"${O2Query.queryGetPrev}${urn}", urn = None) }
+				val futurePrev = taskPrev.runAsync
+				val taskNext = Task{ CiteMainQuery.getJson(O2Query.getNext, s"${O2Query.queryGetNext}${urn}", urn = None) }
+				val futureNext = taskNext.runAsync
 	}
-	*/
 
 	def collapseToWorkUrn(urn:CtsUrn):CtsUrn = {
 		val s = {
@@ -116,11 +118,10 @@ object O2Model {
 	}
 
 
-	/*
 	def updateCurrentCorpus(c:Corpus, u:CtsUrn):Unit = {
 		try {
 			O2Model.currentCorpus.value.clear
-			if (O2Model.textRepo.value != None) {
+			if (O2Model.hasTextRepo.value) {
 				// Since GroupBy doesn't preserve order, let's preserve our own order
 				val versionLevelOrder:Vector[CtsUrn] = {
 					c.urns.map(u => dropOneLevel(u)).distinct.toVector
@@ -129,7 +130,12 @@ object O2Model {
 				val tempCorpusVector:Vector[(CtsUrn, Vector[CitableNode])] = c.nodes.groupBy(_.urn.dropPassage).toVector
 // in correct order to this point				
 				for (tc <- tempCorpusVector) {
-					val versionLabel:String = O2Model.textRepo.value.get.catalog.label(tc._1)		
+					val versionLabel:String = {
+						O2Model.currentCatalog.value match {
+							case Some(c) => c.label(tc._1)
+							case None => "No catalog found!"
+						}
+					}
 					val passageString:String = {
 						u.passageComponentOption match {
 							case Some(s) => s
@@ -169,12 +175,6 @@ object O2Model {
 						tempNodeBlockVec.value += VersionNodeBlock(tempBlockUrn, tempNodesVec)
 					}
 
-/*
-					val tempNodesBindingVector = Vars.empty[CitableNode]
-					for (n <- tc._2) {
-						tempNodesBindingVector.value += n
-					}
-*/
 					O2Model.currentCorpus.value += BoundCorpus(boundVersionUrn, boundVersionLabel, tempNodeBlockVec)
 				}	
 			}
@@ -185,7 +185,6 @@ object O2Model {
 			}
 		}
 	}
-	*/
 
 	def dropOneLevel(u:CtsUrn):CtsUrn = { 
 		try {
@@ -202,15 +201,14 @@ object O2Model {
 		}
 	}
 
-	/*	
 	def displayNewPassage(urn:CtsUrn):Unit = {
-			O2Model.displayPassage(urn)
+		O2View.cursorWaiting
+		val task2 = Task{ CiteMainQuery.getJson(O2Query.getCorpus, s"${O2Query.queryGetCorpus}${urn}", urn = Some(urn))}
+		val future2 = task2.runAsync
 	}
-	*/
 
 	@dom
 	def clearPassage:Unit = {
-		//O2Model.xmlPassage.innerHTML = ""
 		O2Model.versionsForCurrentUrn.value = 0
 		O2Model.currentListOfUrns.value.clear
 		//DSEModel.currentListOfDseUrns.value.clear
@@ -248,7 +246,7 @@ object O2Model {
 		}	
 	}
 
-	/*
+/*
 	@dom
 	def displayPassage(newUrn: CtsUrn):Unit = {
 		val tempCorpus: Corpus = O2Model.textRepo.value.get.corpus >= newUrn
@@ -276,7 +274,7 @@ def checkForRTL(s:String):Boolean = {
 	def updateCitedWorks = {
 		O2Model.citedWorks.value.clear
 		O2Model.currentCatalog.value = None
-		val task = Task{ CiteMainQuery.getJson(O2Query.updateCatalog, O2Query.queryCatalog) }
+		val task = Task{ CiteMainQuery.getJson(O2Query.updateCatalog, O2Query.queryCatalog, urn = None) }
 		val future = task.runAsync
 	}
 

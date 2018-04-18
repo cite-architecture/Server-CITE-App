@@ -615,6 +615,11 @@ div.app_sidebarDiv h2 {
 	min-height: 220px;
 }
 
+#o2_Container.waiting {
+	cursor: wait;
+}
+
+
 /* NGram &c. stuff */
 
 select#ngram_nGramScopeOption {
@@ -988,6 +993,7 @@ body {
 	height: 100%;
 	padding: 15px;
 }
+
 
 #main-wrapper {
 	box-sizing: border-box;

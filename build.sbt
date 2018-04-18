@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "serverciteapp"
 
-version := "0.0.1"
+version := "0.1.0"
 
 scalaVersion := "2.12.3"
 
@@ -10,6 +10,8 @@ scalaVersion := "2.12.3"
 resolvers += Resolver.jcenterRepo
 resolvers += Resolver.bintrayRepo("neelsmith", "maven")
 resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases")
+
+val circeVersion = "0.9.0"
 
 libraryDependencies ++= Seq(
   "org.scala-js" %% "scalajs-stubs" % scalaJSVersion % "provided",
@@ -21,9 +23,15 @@ libraryDependencies ++= Seq(
   "edu.holycross.shot" %%% "citeobj" % "7.0.0",
   "edu.holycross.shot" %%% "citerelations" % "2.0.4",
   "edu.holycross.shot" %%% "citebinaryimage" % "1.1.2",
-  "edu.holycross.shot" %%% "citejson" % "1.1.4",
+  "edu.holycross.shot" %%% "citejson" % "2.0.0" from "file:///cite/scala/unmanaged_jars/citejson_sjs0.6_2.12-2.0.0.jar",
   "com.thoughtworks.binding" %%% "dom" % "latest.version",
 )
+libraryDependencies ++= Seq(
+  "io.circe" %%% "circe-core",
+  "io.circe" %%% "circe-generic",
+  "io.circe" %%% "circe-optics",
+  "io.circe" %%% "circe-parser"
+).map(_ % circeVersion)
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 

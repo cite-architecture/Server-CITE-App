@@ -32,7 +32,7 @@ object O2Query {
 	/* Queries */
 	val queryCatalog:String = "/texts"
 
-	def updateCatalog(jstring:String):Unit = {
+	def updateCatalog(jstring:String, urn:Option[Urn] = None):Unit = {
 		val cat:Catalog = o2Json.o2Catalog(jstring)
 		O2Model.currentCatalog.value = {
 			cat.size match {
@@ -42,6 +42,7 @@ object O2Query {
 		} 
 		O2Model.currentCatalog.value match {
 			case Some(cat) => {
+				O2Model.hasTextRepo.value = true
 				O2Model.citedWorks.value.clear
 				for ( cw <- cat.urnList){
 					O2Model.citedWorks.value += cw
@@ -53,6 +54,7 @@ object O2Query {
 			}
 			case None => {
 				O2Model.citedWorks.value.clear
+				O2Model.hasTextRepo.value = false
 				CiteMainModel.showTexts.value = false
 			}
 		}
@@ -62,27 +64,124 @@ object O2Query {
 
 	val queryFirstUrn:String = "/texts/firsturn/"
 
-	def getFirstUrn(jstring:String):Unit = {
-		val urn:CtsUrn = o2Json.o2CtsUrnString(jstring)
-		O2Model.urn.value = urn
-		O2Controller.validUrnInField.value = true
+	def getFirstUrn(jstring:String, urn:Option[Urn] = None):Unit = {
+		val ourn:Option[CtsUrn] = o2Json.o2CtsUrnString(jstring)
+		ourn match {
+			case Some(urn)	=> {
+				O2Model.urn.value = urn
+				O2Controller.validUrnInField.value = true
+			}
+			case None => {
+				O2Model.urn.value = CtsUrn("urn:cts:ns:group.work.version.exemplar:passage")
+				O2Controller.validUrnInField.value = false
+			}
+		}
 	}
 
-	def getFirstNodeUrn(jstring:String):Unit = {
-		val urn:CtsUrn = o2Json.o2CtsUrnString(jstring)
-		js.Dynamic.global.document.getElementById("o2_urnInput").value = urn.toString
-		O2Controller.validUrnInField.value = true
+	def getFirstNodeUrn(jstring:String, urn:Option[Urn] = None):Unit = {
+		val ourn:Option[CtsUrn] = o2Json.o2CtsUrnString(jstring)
+		ourn match {
+			case Some(urn) => {
+				js.Dynamic.global.document.getElementById("o2_urnInput").value = urn.toString
+				O2Controller.validUrnInField.value = true
+			}
+			case None => {
+				js.Dynamic.global.document.getElementById("o2_urnInput").value = ""
+				O2Controller.validUrnInField.value = false
+			}
+
+		}
 	}
 
 	// textCatalogStuff
 
-	val queryTextCatalog:String = "/textCatalog"
+	val queryTextCatalog:String = "/textcatalog"
 
-	def getVersionsForUrn(jstring:String):Unit = {
+	def getVersionsForUrn(jstring:String, urn:Option[Urn] = None):Unit = {
 		val cat:Catalog = o2Json.o2Catalog(jstring)			
 		O2Model.versionsForCurrentUrn.value = cat.size	
 		g.console.log(s"versions for urn: ${O2Model.versionsForCurrentUrn.value}")
 	}
+
+	// label for urn
+	val queryLabelForUrn:String = "/texts/label/"
+
+	def getLabelForUrnHistory(s:String, urn:Option[Urn]):Unit = {
+		try {
+			val label:String = s
+			urn match {
+				case Some(u) =>  {
+					u.getClass.getName match {
+						case "edu.holycross.shot.cite.CtsUrn" => O2Model.updateUrnHistory(u.asInstanceOf[CtsUrn], label)
+						case _ => throw new Exception(s"${u} is of class ${u.getClass.getName}")
+					}
+				}
+				case None => throw new Exception(s"Did not get URN along with label: ${label}.")
+			}	
+		} catch {
+			case e:Exception => throw new Exception(s"${e}")
+		}
+	}
+
+
+	// corpus!!
+
+	val queryGetCorpus:String = "/texts/"
+
+	def getCorpus(s:String, urn:Option[Urn]):Unit = {
+		try {
+			val newUrn = {
+				urn match {
+					case Some(u) => {
+						u.getClass.getName match {
+							case "edu.holycross.shot.cite.CtsUrn" => u.asInstanceOf[CtsUrn]
+							case _ => throw new Exception(s"${u} is not a CtsUrn: ${u.getClass.getName}.")
+						}	
+					}
+					case None => throw new Exception("No urn given for O2Query.getCorpus.")
+				}
+			}
+			val vcn:Vector[CitableNode] = o2Json.o2VectorOfCitableNodes(s)
+			val tempCorpus:Corpus = Corpus(vcn)
+			O2Model.updateCurrentListOfUrns(tempCorpus)
+			//DSEModel.updateCurrentListOfDseUrns(tempCorpus)
+			//CommentaryModel.updateCurrentListOfComments(tempCorpus)
+		   O2Model.updateCurrentCorpus(tempCorpus, newUrn)
+			O2Model.currentNumberOfCitableNodes.value = tempCorpus.size
+			O2View.cursorNormal
+		} catch {
+			case e:Exception => throw new Exception(s"${e}")
+		}
+	}
+
+	// prev/next
+	val queryGetPrev:String = "/texts/prevurn/"
+	val queryGetNext:String = "/texts/nexturn/"
+
+	def getPrev(jstring:String, urn:Option[Urn]):Unit = {
+		try {
+			val ourn:Option[CtsUrn] = o2Json.o2CtsUrnString(jstring)
+			ourn match {
+				case Some(urn) => O2Model.currentPrev.value = Some(urn)
+				case None =>
+			}
+
+		} catch {
+			case e:Exception => throw new Exception(s"${e}")
+		}
+	}
+	def getNext(jstring:String, urn:Option[Urn]):Unit = {
+		try {
+			val ourn:Option[CtsUrn] = o2Json.o2CtsUrnString(jstring)
+			ourn match {
+				case Some(urn) => O2Model.currentNext.value = Some(urn)
+				case None =>
+			}
+		} catch {
+			case e:Exception => throw new Exception(s"${e}")
+		}
+	}
+
 
 
 

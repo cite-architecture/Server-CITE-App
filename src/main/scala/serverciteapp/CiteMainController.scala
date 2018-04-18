@@ -33,7 +33,7 @@ object CiteMainController {
 	def main(serviceUrl: String): Unit = {
 		CiteMainModel.serviceUrl.value = serviceUrl
 		CiteMainController.updateUserMessage("Getting library information…",1)
-		CiteMainQuery.getJson(CiteMainQuery.updateLibraryMetadata, CiteMainQuery.queryLibraryInfo)
+		CiteMainQuery.getJson(CiteMainQuery.updateLibraryMetadata, CiteMainQuery.queryLibraryInfo, urn = None)
 		updateRepository
 
 		dom.render(document.body, CiteMainView.mainDiv)

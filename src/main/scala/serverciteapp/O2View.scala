@@ -93,11 +93,8 @@ def retrievePassageButton = {
 				val s:String = js.Dynamic.global.document.getElementById("o2_urnInput").value.toString
 				O2Model.urn.value = CtsUrn(s)
 				O2Controller.updateUserMessage("Retrieving passage…",1)
-				//val task = Task{ O2Controller.changePassage }
-				//val future = task.runAsync
-//				js.timers.setTimeout(200){
-					//Future{ O2Controller.changePassage }
-//				}
+				val task = Task{ O2Controller.changePassage }
+				val future = task.runAsync
 			}
 		}
 		disabled={ (O2Controller.validUrnInField.bind == false) }
@@ -118,7 +115,7 @@ def seeAllVersionsButton = {
 		disabled = { if (O2Model.versionsForCurrentUrn.bind > 0) false else true }
 		onclick = { event: Event => {
 				O2Model.displayUrn.value = O2Model.collapseToWorkUrn(O2Model.urn.value)
-				//O2Model.displayNewPassage(O2Model.displayUrn.value)
+				O2Model.displayNewPassage(O2Model.displayUrn.value)
 		}}
 	>
 		See All Versions of Passage
@@ -364,6 +361,13 @@ def passageUrnSpan(urn:CtsUrn, s:String) = {
 	}>
 	{ urn.toString}
 	</span>
+}
+
+def cursorWaiting = {
+	js.Dynamic.global.document.getElementById("o2_Container").setAttribute("class","waiting")
+}
+def cursorNormal = {
+	js.Dynamic.global.document.getElementById("o2_Container").setAttribute("class","")
 }
 
 

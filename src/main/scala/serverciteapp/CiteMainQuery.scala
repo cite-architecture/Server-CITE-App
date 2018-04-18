@@ -26,21 +26,22 @@ import scala.scalajs.js.annotation.JSExport
 @JSExportTopLevel("serverciteapp.CiteMainQuery")
 object CiteMainQuery {
 
-	val citeObjJson:CiteObjJson = CiteObjJson()
+	val citeLibraryJson:CiteLibraryJson = CiteLibraryJson()
 
 
 	/*
 		Use AJAX request to get remote data
 		`callback` is the name of a function that should take a single parameter of type String
 	*/
-	def getJson(callback: (String) => Unit, query:String, url: String = CiteMainModel.serviceUrl.value):Unit = {
+	def getJson(callback: (String, Option[Urn]) => Unit, query:String, url: String = CiteMainModel.serviceUrl.value, urn:Option[Urn] = None):Unit = {
 
 		val xhr = new XMLHttpRequest()
 		xhr.open("GET", s"${url}${query}" )
 		xhr.onload = { (e: Event) =>
 			if (xhr.status == 200) {
 				val contents:String = xhr.responseText
-				callback(contents)
+				callback(contents, urn)
+				//callback(contents)
 				//CiteMainModel.requestParameterUrn.value = CiteMainController.getRequestUrn
 				//CiteMainController.updateRepository(contents)
 			} else {
@@ -54,9 +55,9 @@ object CiteMainQuery {
 	/* Queries */
 	val queryLibraryInfo:String = "/libraryinfo"
 
-	def updateLibraryMetadata(jstring:String):Unit = {
+	def updateLibraryMetadata(jstring:String, urn:Option[Urn] = None):Unit = {
 
-		val libMap:scala.collection.immutable.Map[String,String] = citeObjJson.parseLibraryInfo(jstring)
+		val libMap:scala.collection.immutable.Map[String,String] = citeLibraryJson.parseLibraryInfo(jstring)
 		val libName:String = libMap("name")
 		val libUrn:Cite2Urn = Cite2Urn(libMap("urn"))
 		val libLicense:String = libMap("license")
