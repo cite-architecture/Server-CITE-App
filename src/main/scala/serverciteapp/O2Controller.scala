@@ -27,22 +27,20 @@ object O2Controller {
 
 
 	/* A lot of work gets done here */
-	/*
 	def changePassage: Unit = {
 		val timeStart = new js.Date().getTime()
 		val newUrn: CtsUrn = O2Model.urn.value
 		O2Model.updateUrnHistory(newUrn)
 		val task1 = Task{
-				O2Model.versionsForCurrentUrn.value = O2Model.versionsForUrn(newUrn)
-				O2Model.displayPassage(newUrn)
+				O2Model.versionsForUrn(newUrn)
+				//O2Model.displayPassage(newUrn)
 				val timeEnd = new js.Date().getTime()
-				O2Controller.updateUserMessage(s"Fetched ${O2Model.currentNumberOfCitableNodes.value} citation objects in ${(timeEnd - timeStart)/1000} seconds.",0)
+				//O2Controller.updateUserMessage(s"Fetched ${O2Model.currentNumberOfCitableNodes.value} citation objects in ${(timeEnd - timeStart)/1000} seconds.",0)
 		}
 		val future1 = task1.runAsync
-		val task2 = Task{ O2Model.getPrevNextUrn(O2Model.urn.value) }
-		val future2 = task2.runAsync
+		//val task2 = Task{ O2Model.getPrevNextUrn(O2Model.urn.value) }
+		//val future2 = task2.runAsync
 	}
-	*/
 
 
 	def updateUserMessage(msg: String, alert: Int): Unit = {

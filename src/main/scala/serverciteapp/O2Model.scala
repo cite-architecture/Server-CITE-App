@@ -40,11 +40,10 @@ object O2Model {
 
 
 	// Add an entry to the citation-history
-	/*
 	def updateUrnHistory(u:CtsUrn):Unit = {
+		/*
 		try {
 			if (hasTextRepo.value) {
-
 				val tempList:List[Tuple2[CtsUrn,String]] = urnHistory.value.toList.reverse.map(t => { Tuple2(t._2, t._3)})
 				val newTempList:List[Tuple2[CtsUrn,String]] = tempList ++ List(Tuple2(u,textRepo.value.get.label(u)))
 				val indexedTempList:List[Tuple3[Int,CtsUrn,String]] = newTempList.zipWithIndex.map( t => {
@@ -57,8 +56,8 @@ object O2Model {
 		} catch{
 			case e:Exception => O2Controller.updateUserMessage(s"Unable to make label for ${u}: ${e}",2)
 		}
+		*/
 	}
-	*/
 
 
 	// urn is what the user requested
@@ -80,17 +79,16 @@ object O2Model {
 
 
 	/* Some methods for working the model */
-	/*
 	def versionsForUrn(urn:CtsUrn):Int = {
 		var versions = 0
-		if (O2Model.textRepo.value != None){
+		if (O2Model.hasTextRepo.value){
 				val s = s"urn:cts:${urn.namespace}:${urn.textGroup}.${urn.work}:"
-				val versionVector = O2Model.textRepo.value.get.catalog.entriesForUrn(CtsUrn(s))
-				versions = versionVector.size
+				val u = CtsUrn(s)
+				val task = Task{ CiteMainQuery.getJson(O2Query.getVersionsForUrn, s"${O2Query.queryTextCatalog}/${u}") }
+				val future = task.runAsync
 		}
 		versions
 	}
-	*/
 
 	/*
 	def getPrevNextUrn(urn:CtsUrn):Unit = {

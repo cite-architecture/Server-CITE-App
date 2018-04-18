@@ -58,6 +58,8 @@ object O2Query {
 		}
 	}
 
+	// First Urn Stuff
+
 	val queryFirstUrn:String = "/texts/firsturn/"
 
 	def getFirstUrn(jstring:String):Unit = {
@@ -71,6 +73,17 @@ object O2Query {
 		js.Dynamic.global.document.getElementById("o2_urnInput").value = urn.toString
 		O2Controller.validUrnInField.value = true
 	}
+
+	// textCatalogStuff
+
+	val queryTextCatalog:String = "/textCatalog"
+
+	def getVersionsForUrn(jstring:String):Unit = {
+		val cat:Catalog = o2Json.o2Catalog(jstring)			
+		O2Model.versionsForCurrentUrn.value = cat.size	
+		g.console.log(s"versions for urn: ${O2Model.versionsForCurrentUrn.value}")
+	}
+
 
 
 
