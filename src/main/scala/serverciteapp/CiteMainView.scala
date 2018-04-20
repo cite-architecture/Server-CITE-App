@@ -55,7 +55,7 @@ object CiteMainView {
 			<span id="app_header_cexInfo">
 			{ CiteMainModel.currentLibraryMetadataString.bind }
 			</span>
-			<span id="app_header_versionInfo">Cite Environment v. { BuildInfo.version }</span>
+			<span id="app_header_versionInfo">CiteApp (Server) v. { BuildInfo.version }</span>
 			<span id="app_help_link">[ <a target="_blank" href="https://github.com/cite-architecture/CITE-App/wiki">Online Help</a> ]</span>
 		</header>
 

@@ -23,7 +23,8 @@ libraryDependencies ++= Seq(
   "edu.holycross.shot" %%% "citeobj" % "7.0.0",
   "edu.holycross.shot" %%% "citerelations" % "2.0.4",
   "edu.holycross.shot" %%% "citebinaryimage" % "1.1.2",
-  "edu.holycross.shot" %%% "citejson" % "2.0.0" from "file:///cite/scala/unmanaged_jars/citejson_sjs0.6_2.12-2.0.0.jar",
+  //"edu.holycross.shot" %%% "citejson" % "2.0.0" from "file:///cite/scala/unmanaged_jars/citejson_sjs0.6_2.12-2.0.0.jar",
+  "edu.holycross.shot" %%% "citejson" % "2.0.0",
   "com.thoughtworks.binding" %%% "dom" % "latest.version",
 )
 libraryDependencies ++= Seq(
@@ -47,12 +48,12 @@ import java.io.PrintWriter
 spa := {
 
 //	val defaultLibraryUrl = "https://raw.githubusercontent.com/cite-architecture/citedx/master/libraries/millionplus.cex"
-  val defaultLibraryUrl = "https://raw.githubusercontent.com/Eumaeus/fuCiteDX/master/hmt-cwb4.cex"
+  val defaultServiceUrl = "http://beta.hpcc.uh.edu/scs"
 
   val compileFirst = (fullOptJS in Compile).value
 
-  val junk = "//# sourceMappingURL=citeapp-opt.js.map"
-  val js = Source.fromFile("target/scala-2.12/citeapp-opt.js").getLines.mkString("\n").replaceAll(junk,"")
+  val junk = "//# sourceMappingURL=serverciteapp-opt.js.map"
+  val js = Source.fromFile("target/scala-2.12/serverciteapp-opt.js").getLines.mkString("\n").replaceAll(junk,"")
 
   val css = Source.fromFile("target/scala-2.12/classes/application.css").getLines.mkString("\n")
 
@@ -60,10 +61,10 @@ spa := {
   val template1Text = Source.fromFile(template1).getLines.mkString("\n").replaceAll("ACTUALVERSION", version.value).replaceAll("ACTUALCSS",css)
 
 
-	val urlPlaceholder = "DEFAULTLIBRARYURL"
+	val urlPlaceholder = "DEFAULTSERVICEURL"
 	val delimiterPlaceholder = "DEFAULTLIBRARYDELIMITER"
 
-  val template2Text = Source.fromFile("src/main/resources/cite-TEMPLATE2.html").getLines.mkString("\n").replaceAll(urlPlaceholder,defaultLibraryUrl)
+  val template2Text = Source.fromFile("src/main/resources/cite-TEMPLATE2.html").getLines.mkString("\n").replaceAll(urlPlaceholder,defaultServiceUrl)
   val newFile = "downloads/cite-" + version.value + ".html"
   new PrintWriter(newFile) { write(template1Text + js + template2Text); close }
   println("Runnable single-page app is in " + newFile)
