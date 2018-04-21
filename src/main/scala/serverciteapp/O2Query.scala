@@ -32,6 +32,11 @@ object O2Query {
 	/* Queries */
 	val queryCatalog:String = "/texts"
 
+	/* This does a lot of work:
+		- It sees if there is a TextRepository
+		- If so, it lets O2Model know
+		- It shows the Browse Texts and Explore Texts tabs
+	*/
 	def updateCatalog(jstring:String, urn:Option[Urn] = None):Unit = {
 		val cat:Catalog = o2Json.o2Catalog(jstring)
 		O2Model.currentCatalog.value = {
@@ -47,7 +52,10 @@ object O2Query {
 				for ( cw <- cat.urnList){
 					O2Model.citedWorks.value += cw
 				}
+
 				CiteMainModel.showTexts.value = true
+				CiteMainModel.showNg.value = true
+
 				O2Controller.updateUserMessage(s"Updated text repository with ${O2Model.citedWorks.value.size} versions of works.",0)
 				CiteMainView.changeTab("text")
 				O2Controller.preloadUrn

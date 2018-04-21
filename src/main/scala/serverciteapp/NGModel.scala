@@ -11,6 +11,8 @@ import edu.holycross.shot.cite._
 import edu.holycross.shot.ohco2._
 import edu.holycross.shot.citeobj._
 import scala.scalajs.js.Dynamic.{ global => g }
+import monix.execution.Scheduler.Implicits.global
+import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 import js.annotation._
@@ -182,7 +184,7 @@ def getNGram(ngUrn: CtsUrn, filterString: String, n: Int, occ: Int, ignorePunc: 
 /* String and Token Finding */
 
 
-def findString(urn:CtsUrn, s:String):Unit = {
+def findString(s:String, urn:Urn):Unit = {
 		val task = Task{ CiteMainQuery.getJson(NGQuery.getFindString, s"${NGQuery.queryFindString}/${urn}", urn = Some(urn)) }
 		val future = task.runAsync	
 }

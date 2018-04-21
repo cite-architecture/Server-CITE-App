@@ -11,6 +11,8 @@ import scala.scalajs.js.Dynamic.{ global => g }
 import edu.holycross.shot.cite._
 import edu.holycross.shot.ohco2._
 import edu.holycross.shot.citeobj._
+import monix.execution.Scheduler.Implicits.global
+import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 import js.annotation._
@@ -75,32 +77,22 @@ object NGController {
 		NGModel.corpusOrUrn.value = q.urn
 	}
 
-/*
 def executeQuery(q:NGModel.StringSearch) = {
 		NGController.clearResults
 		NGController.updateUserMessage(s"""Searching for string "${q.fs}". Please be patient…""",1)
-		val timeStart = new js.Date().getTime()
 		NGModel.nGramResults.value.clear
 		NGModel.citationResults.value.clear
 		q.urn match {
-			case Some(urn) => {
-				val tempCorpus = NGModel.findString(NGModel.urn.value.dropPassage, q.fs)
-				for (n <- tempCorpus.nodes){
-						NGModel.citationResults.value += NGModel.SearchResult(Var(n.urn), Var(n.kwic(q.fs,20)))
-				}
+			case Some(u) => {
+				val task = Task{ CiteMainQuery.getJson(NGQuery.getFindString, s"${NGQuery.queryFindString}/${u}?s=${q.fs}", urn = q.urn) }
+				val future = task.runAsync	
 			}
-			case _ => {
-				val tempCorpus = NGModel.findString(q.fs)
-				for (n <- tempCorpus.nodes){
-						NGModel.citationResults.value += NGModel.SearchResult(Var(n.urn), Var(n.kwic(q.fs,30)))
-				}
+			case None => {
+				val task = Task{ CiteMainQuery.getJson(NGQuery.getFindString, s"${NGQuery.queryFindString}?s=${q.fs}", urn = q.urn) }
+				val future = task.runAsync	
 			}
 		}
-		val timeEnd = new js.Date().getTime()
-		NGModel.otherQueryReport.value = s"""${q.toString} Time: ${(timeEnd - timeStart)/1000} seconds. Results: ${NGModel.citationResults.value.size}."""
-		NGController.updateUserMessage(s"Found ${NGModel.citationResults.value.size} passages in ${(timeEnd - timeStart)/1000} seconds.",0)
 	}
-*/
 
 /*
 def executeQuery(q:NGModel.TokenSearch):Unit = {
@@ -245,12 +237,17 @@ def executeQuery(q:NGModel.TokenSearch):Unit = {
 	}
 */
 
-
+	/* Sequence is:
+		1. NGController.sringSearchQuery
+		2. NGCotrolller.executeQuery
+		3. NGQuery.getFindString
+	*/
 	def stringSearchQuery:Unit = {
+		// Here we construct the String Search Object
 		val newQuery = NGController.constructStringSearchObject
 
-		if (O2Model.hasTextRepo.value){
-			NGController.updateUserMessage("No library loaded.",2)
+		if (O2Model.hasTextRepo.value == false){
+			NGController.updateUserMessage(s"No library loaded. O2Model.hasTextRepo == ${O2Model.hasTextRepo.value}",2)
 		} else {
 			NGModel.pastQueries.value += newQuery
 			NGController.executeQuery(newQuery)

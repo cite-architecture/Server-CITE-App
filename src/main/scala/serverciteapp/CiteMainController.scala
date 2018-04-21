@@ -99,6 +99,7 @@ object CiteMainController {
 			-------------------------------------
 			*/
 			O2Model.updateCitedWorks // which hands off to O2Query.updateCatalog
+			// O2Query.updateCatalog, in turn, takes care of activating the "Explore Texts" tab.
 
 			// Collection Repository Stuff
 			// Relations stuff

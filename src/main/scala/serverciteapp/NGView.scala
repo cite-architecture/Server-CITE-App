@@ -64,9 +64,9 @@ def previousSearches = {
 			for ( q <- NGModel.pastQueries) yield {
 					<p
 							onclick={ event: Event => {
-								NGController.loadQuery(q)
-								val task = Task { NGController.executeQuery(q) }
-								val future = task.runAsync
+								//NGController.loadQuery(q)
+								//val task = Task { NGController.executeQuery(q) }
+								//val future = task.runAsync
 								
 							}
 							}
@@ -113,11 +113,12 @@ def putWholeCorpusFirst = {
 def loadCitedWorks = {
 	for (urn <- O2Model.citedWorks) yield {
 		<p>
-			{ workUrnSpan( urn, O2Model.textRepo.value.get.catalog.label(urn) ).bind }
-			<br/>( { O2Model.textRepo.value.get.catalog.entriesForUrn(urn)(0).citationScheme  } )
+			{ workUrnSpan( urn, O2Model.currentCatalog.value.get.label(urn) ).bind }
+			<br/>( { O2Model.currentCatalog.value.get.entriesForUrn(urn)(0).citationScheme  } )
 		</p>
 	}	
 }
+
 
 @dom
 def wholeCorpusSpan = {
@@ -156,7 +157,7 @@ def passageUrnSpan(urn:CtsUrn, s:String) = {
 	<span
 	class="app_clickable app_urn"
 	onclick={ event: Event => {
-			DataModelController.retrieveTextPassage(None, urn)
+//			DataModelController.retrieveTextPassage(None, urn)
 		}
 	}>
 	{ s }
@@ -205,7 +206,15 @@ def  toolsContainer = {
 def corpusOrUrnLabel = {
 	NGModel.corpusOrUrn.bind match {
 		case Some(u) => {
-			s"${O2Model.textRepo.value.get.catalog.label(u.dropPassage)}"
+			val label:String = {
+				O2Model.currentCatalog.value match {
+					case Some(cc) => {
+						s"${cc.label(u.dropPassage)}"
+					}
+					case None => ""
+				}
+			}
+			label
 		}
 	case None => { "Whole Corpus" }
 
@@ -257,8 +266,8 @@ def nGramForm = {
 		id="ngram_Submit"
 			onclick={ event: Event => {
 					NGController.updateUserMessage("Getting N-Grams. Please be patient…",1)
-					val task = Task{ NGController.nGramQuery}
-					val future = task.runAsync
+				//	val task = Task{ NGController.nGramQuery}
+				//	val future = task.runAsync
 					
 				}
 			}
@@ -278,8 +287,7 @@ def stringSearchForm = {
 		id="stringSearch_Submit"
 			onclick={ event: Event => {
 					NGController.updateUserMessage("Searching for string. Please be patient…",1)
-					val task = Task{ NGController.stringSearchQuery }
-					val future = task.runAsync
+					NGController.stringSearchQuery
 				}
 			}
 		>Search</button>
@@ -308,8 +316,8 @@ def tokenSearchForm = {
 		id="tokenSearch_Submit"
 			onclick={ event: Event => {
 					NGController.updateUserMessage("Conducting token search. Please be patient…",1)
-					val task = Task{NGController.tokenSearchQuery}
-					val future = task.runAsync
+//					val task = Task{NGController.tokenSearchQuery}
+//					val future = task.runAsync
 				}
 			}
 		>Search</button>
@@ -339,8 +347,8 @@ def nGramSpace = {
 				onclick={ event: Event => {
 
 					NGController.updateUserMessage(s"Getting URNs for '${ng.s}'. Please be patient…",1)
-					val task = Task{ NGController.getUrnsForNGram( ng.s ) }
-					val future = task.runAsync
+//					val task = Task{ NGController.getUrnsForNGram( ng.s ) }
+//					val future = task.runAsync
 				} }
 				>
 				{ ng.s }
@@ -375,7 +383,14 @@ def citationResultsList = {
 			for (ng <- NGModel.citationResults) yield {
 				<li>
 				{
-					val s:String = s"${O2Model.textRepo.value.get.catalog.label(ng.urn.value.dropPassage)}, ${ng.urn.value.passageComponent}"
+					val s:String = {
+						O2Model.currentCatalog.value match {
+							case Some(cc) => {
+								s"${cc.label(ng.urn.value.dropPassage)}, ${ng.urn.value.passageComponent}"
+							}
+							case None => ""
+						}
+					}
 
 					passageUrnSpan( ng.urn.value, s ).bind
 				}

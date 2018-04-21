@@ -22,8 +22,8 @@ import js.annotation._
 object CiteMainView {
 
 	val textView = O2View.o2div
-/*
 	val ngramView = NGView.nGdiv
+/*
 	val objectView = ObjectView.objectDiv
 	val imageView = CiteBinaryImageView.imageDiv
 	val relationsView = RelationsView.relationsDiv
@@ -88,6 +88,7 @@ object CiteMainView {
 					<input type="radio" id="tab-2" name="tab-group-1" checked={ false }/>
 					<label class="tab_label" for="tab-2">Explore Texts</label>
 						<div class="content">
+						 { ngramView.bind }
 						</div>
 				</div>
 

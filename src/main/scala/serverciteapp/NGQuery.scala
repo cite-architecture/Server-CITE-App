@@ -63,7 +63,7 @@ object NGQuery {
 	// label for urn
 	val queryLabelForUrn:String = "/texts/label/"
 
-	def getLabelForUrnHistory(s:String, urn:Option[Urn]):Unit = {
+	def getLabelForUrnHistory(s:String, urn:Option[CtsUrn]):Unit = {
 		try {
 			val label:String = s
 			urn match {
@@ -84,8 +84,45 @@ object NGQuery {
 
 	val queryFindString:String = "/texts/find"
 
-	def getStringFind(s:String, urn:Option[CtsUrn] = None):Corpus = {
-		val vcn:Vector[CitableNode] = o2Json.o2VectorOfCitableNodes(jstring)
+	def getFindString(s:String, urn:Option[Urn] = None):Unit = {
+		try {
+			val u:Option[CtsUrn] = {
+				urn match {
+					case Some(u) => {
+						u.getClass.getName match {
+							case "edu.holycross.shot.cite.CtsUrn" => Some(u.asInstanceOf[CtsUrn])
+							case _ => throw new Exception(s"Could not make ${u} ( ${u.getClass.getName} ) into a CtsUrn.")
+						}
+					}
+					case None => None
+				}
+			}
+			val fs:String = NGModel.pastQueries.value.last.asInstanceOf[NGModel.StringSearch].fs
+			val q:NGModel.StringSearch = NGModel.StringSearch(fs, u)
+			val vcn:Vector[CitableNode] = o2Json.o2VectorOfCitableNodes(s)
+			vcn.size match {
+				case n if (n > 0) => {
+					NGModel.currentStringSearchResults.value = Some(Corpus(vcn))
+					NGModel.currentStringSearchResults.value match {
+						case Some(results) => {
+							for (n <- results.nodes){
+									NGModel.citationResults.value += NGModel.SearchResult(Var(n.urn), Var(n.kwic(q.fs,20)))
+							}
+						}
+						case None => // do nothing
+
+					}
+					NGModel.otherQueryReport.value = s"""Query: ${NGModel.pastQueries.value.last.asInstanceOf[NGModel.StringSearch].toString} Results: ${NGModel.citationResults.value.size}."""
+					NGController.updateUserMessage(s"Found ${NGModel.citationResults.value.size} passages.",0)
+				}
+				case _ => NGModel.currentStringSearchResults.value = None
+			}
+		} catch {
+			case e:Exception => {
+				NGController.updateUserMessage(s"Exception in NGQuery.getFindstring: ${e}", 2)
+				throw new Exception(s"NGQuery.getFindstring: ${e}")
+			}
+		}
 	}
 
 
