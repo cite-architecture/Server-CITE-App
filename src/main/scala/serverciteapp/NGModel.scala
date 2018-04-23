@@ -142,7 +142,6 @@ def getNGram(ngUrn: CtsUrn, filterString: String, n: Int, occ: Int, ignorePunc: 
  }
 */
 
- /* 
  def getNGram(ngCorpus:Corpus, filterString: String, n: Int, occ: Int, ignorePunc: Boolean ): StringHistogram = {
 
 		val hist:StringHistogram = {
@@ -154,7 +153,6 @@ def getNGram(ngUrn: CtsUrn, filterString: String, n: Int, occ: Int, ignorePunc: 
 		}
 		hist
 	}
-	*/
 
 /*
  def getUrnsForNGram(s: String, ignorePunc: Boolean ): Vector[CtsUrn] ={

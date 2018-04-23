@@ -157,7 +157,7 @@ def passageUrnSpan(urn:CtsUrn, s:String) = {
 	<span
 	class="app_clickable app_urn"
 	onclick={ event: Event => {
-//			DataModelController.retrieveTextPassage(None, urn)
+			DataModelController.retrieveTextPassage(None, urn)
 		}
 	}>
 	{ s }
@@ -266,8 +266,8 @@ def nGramForm = {
 		id="ngram_Submit"
 			onclick={ event: Event => {
 					NGController.updateUserMessage("Getting N-Grams. Please be patient…",1)
-				//	val task = Task{ NGController.nGramQuery}
-				//	val future = task.runAsync
+					val task = Task{ NGController.nGramQuery }
+					val future = task.runAsync
 					
 				}
 			}
@@ -287,7 +287,8 @@ def stringSearchForm = {
 		id="stringSearch_Submit"
 			onclick={ event: Event => {
 					NGController.updateUserMessage("Searching for string. Please be patient…",1)
-					NGController.stringSearchQuery
+					val task = Task{ NGController.stringSearchQuery }
+					val future = task.runAsync
 				}
 			}
 		>Search</button>
@@ -347,8 +348,8 @@ def nGramSpace = {
 				onclick={ event: Event => {
 
 					NGController.updateUserMessage(s"Getting URNs for '${ng.s}'. Please be patient…",1)
-//					val task = Task{ NGController.getUrnsForNGram( ng.s ) }
-//					val future = task.runAsync
+					val task = Task{ NGController.getUrnsForNGram( ng.s ) }
+					val future = task.runAsync
 				} }
 				>
 				{ ng.s }
@@ -403,6 +404,13 @@ def citationResultsList = {
 		</ol>
 }
 
+
+def cursorWaiting = {
+	js.Dynamic.global.document.getElementById("ngram_Container").setAttribute("class","waiting")
+}
+def cursorNormal = {
+	js.Dynamic.global.document.getElementById("ngram_Container").setAttribute("class","")
+}
 
 
 }

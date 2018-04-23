@@ -615,7 +615,7 @@ div.app_sidebarDiv h2 {
 	min-height: 220px;
 }
 
-#o2_Container.waiting {
+div.waiting  {
 	cursor: wait;
 }
 

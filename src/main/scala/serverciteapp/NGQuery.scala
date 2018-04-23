@@ -117,6 +117,7 @@ object NGQuery {
 				}
 				case _ => NGModel.currentStringSearchResults.value = None
 			}
+			NGView.cursorNormal
 		} catch {
 			case e:Exception => {
 				NGController.updateUserMessage(s"Exception in NGQuery.getFindstring: ${e}", 2)
@@ -125,8 +126,65 @@ object NGQuery {
 		}
 	}
 
+	// Find Ngrams
 
+	val queryFindNgrams:String = "/texts/ngram"
 
+	def getFindNgrams(s:String, urn:Option[Urn] = None):Unit = {
+		try {
+			val u:Option[CtsUrn] = {
+				urn match {
+					case Some(u) => {
+						u.getClass.getName match {
+							case "edu.holycross.shot.cite.CtsUrn" => Some(u.asInstanceOf[CtsUrn])
+							case _ => throw new Exception(s"Could not make ${u} ( ${u.getClass.getName} ) into a CtsUrn.")
+						}
+					}
+					case None => None
+				}
+			}
+			val fs:String = NGModel.pastQueries.value.last.asInstanceOf[NGModel.NGramQuery].fs
+			val n:Integer = NGModel.pastQueries.value.last.asInstanceOf[NGModel.NGramQuery].n
+			val t:Integer = NGModel.pastQueries.value.last.asInstanceOf[NGModel.NGramQuery].t
+			val ip:Boolean = NGModel.pastQueries.value.last.asInstanceOf[NGModel.NGramQuery].ip
+			val q:NGModel.StringSearch = NGModel.StringSearch(fs, u)
+
+			val vsc:Vector[StringCount] = o2Json.o2VectorOfStringCounts(s)
+
+			vsc.size match {
+				case n if (n > 0) => {
+					for ( sc <- vsc ) {
+						NGModel.nGramResults.value += sc
+					}
+					NGModel.otherQueryReport.value = s"""Query: ${NGModel.pastQueries.value.last.asInstanceOf[NGModel.NGramQuery].toString} Results: ${NGModel.nGramResults.value.size}."""
+					NGController.updateUserMessage(s"Found ${NGModel.nGramResults.value.size} NGrams.",0)
+				}
+				case _ => NGModel.nGramResults.value.clear
+			}
+			NGView.cursorNormal
+		} catch {
+			case e:Exception => {
+				NGController.updateUserMessage(s"Exception in NGQuery.getFindNgrams: ${e}", 2)
+				throw new Exception(s"NGQuery.getFindNgrams: ${e}")
+			}
+		}
+	}
+
+	// Get URNs for nGramResults
+
+	val queryCorpusForNgrams:String = "/texts/ngram/urns/tocorpus"
+
+	def getCorpusForNgram(s:String, u:Option[Urn] = None):Unit = {
+		val vcn:Vector[CitableNode] = o2Json.o2VectorOfCitableNodes(s)
+		val tempCorpus:Corpus = Corpus(vcn)
+		for ( n <- tempCorpus.nodes) {
+			NGModel.citationResults.value += NGModel.SearchResult(Var(n.urn), Var(n.text))
+		}
+
+		NGModel.otherQueryReport.value = s"""Fetched ${NGModel.citationResults.value.size} passages."""
+		NGController.updateUserMessage(s"Fetched ${NGModel.citationResults.value.size} passages.",0)
+		NGView.cursorNormal
+	}
 
 
 }

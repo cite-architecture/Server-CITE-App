@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "serverciteapp"
 
-version := "0.1.0"
+version := "0.1.1"
 
 scalaVersion := "2.12.3"
 
@@ -20,7 +20,7 @@ libraryDependencies ++= Seq(
   "edu.holycross.shot.cite" %%% "xcite" % "3.3.0",
   "edu.holycross.shot" %%% "ohco2" % "10.7.0",
   "edu.holycross.shot" %%% "scm" % "6.0.0",
-  "edu.holycross.shot" %%% "citeobj" % "7.0.0",
+  "edu.holycross.shot" %%% "citeobj" % "7.0.1",
   "edu.holycross.shot" %%% "citerelations" % "2.0.4",
   "edu.holycross.shot" %%% "citebinaryimage" % "1.1.2",
   //"edu.holycross.shot" %%% "citejson" % "2.0.0" from "file:///cite/scala/unmanaged_jars/citejson_sjs0.6_2.12-2.0.0.jar",
