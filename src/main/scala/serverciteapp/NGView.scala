@@ -317,8 +317,8 @@ def tokenSearchForm = {
 		id="tokenSearch_Submit"
 			onclick={ event: Event => {
 					NGController.updateUserMessage("Conducting token search. Please be patient…",1)
-//					val task = Task{NGController.tokenSearchQuery}
-//					val future = task.runAsync
+					val task = Task{NGController.tokenSearchQuery}
+					val future = task.runAsync
 				}
 			}
 		>Search</button>

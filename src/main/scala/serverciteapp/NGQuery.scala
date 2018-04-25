@@ -115,7 +115,11 @@ object NGQuery {
 					NGModel.otherQueryReport.value = s"""Query: ${NGModel.pastQueries.value.last.asInstanceOf[NGModel.StringSearch].toString} Results: ${NGModel.citationResults.value.size}."""
 					NGController.updateUserMessage(s"Found ${NGModel.citationResults.value.size} passages.",0)
 				}
-				case _ => NGModel.currentStringSearchResults.value = None
+				case _ => {
+					NGModel.currentStringSearchResults.value = None
+					NGController.updateUserMessage(s"Found no passages.",0)
+					NGModel.otherQueryReport.value = s"""Query: ${NGModel.pastQueries.value.last.asInstanceOf[NGModel.StringSearch].toString} Results: ${NGModel.citationResults.value.size}."""
+				}
 			}
 			NGView.cursorNormal
 		} catch {
@@ -159,7 +163,11 @@ object NGQuery {
 					NGModel.otherQueryReport.value = s"""Query: ${NGModel.pastQueries.value.last.asInstanceOf[NGModel.NGramQuery].toString} Results: ${NGModel.nGramResults.value.size}."""
 					NGController.updateUserMessage(s"Found ${NGModel.nGramResults.value.size} NGrams.",0)
 				}
-				case _ => NGModel.nGramResults.value.clear
+				case _ => {
+					NGModel.nGramResults.value.clear
+					NGController.updateUserMessage(s"Found no NGrams.",0)
+					NGModel.otherQueryReport.value = s"""Query: ${NGModel.pastQueries.value.last.asInstanceOf[NGModel.NGramQuery].toString} Results: ${NGModel.nGramResults.value.size}."""
+				}
 			}
 			NGView.cursorNormal
 		} catch {
@@ -184,6 +192,57 @@ object NGQuery {
 		NGModel.otherQueryReport.value = s"""Fetched ${NGModel.citationResults.value.size} passages."""
 		NGController.updateUserMessage(s"Fetched ${NGModel.citationResults.value.size} passages.",0)
 		NGView.cursorNormal
+	}
+
+	// Token Search
+
+	val queryTokenSearch:String = "/texts/tokens"
+
+	def getTokenSearch(s:String, urn:Option[Urn] = None):Unit = {
+		try {
+			val u:Option[CtsUrn] = {
+				urn match {
+					case Some(u) => {
+						u.getClass.getName match {
+							case "edu.holycross.shot.cite.CtsUrn" => Some(u.asInstanceOf[CtsUrn])
+							case _ => throw new Exception(s"Could not make ${u} ( ${u.getClass.getName} ) into a CtsUrn.")
+						}
+					}
+					case None => None
+				}
+			}
+			val tt:Vector[String] = NGModel.pastQueries.value.last.asInstanceOf[NGModel.TokenSearch].tt
+			val p:Integer = NGModel.pastQueries.value.last.asInstanceOf[NGModel.TokenSearch].p
+			val q:NGModel.TokenSearch = NGModel.TokenSearch(tt, p, u)
+			val vcn:Vector[CitableNode] = o2Json.o2VectorOfCitableNodes(s)
+			vcn.size match {
+				case n if (n > 0) => {
+					NGModel.currentStringSearchResults.value = Some(Corpus(vcn))
+					NGModel.currentStringSearchResults.value match {
+						case Some(results) => {
+							for (n <- results.nodes){
+									NGModel.citationResults.value += NGModel.SearchResult(Var(n.urn), Var(n.kwic(q.tt(0),20)))
+							}
+						}
+						case None => // do nothing
+
+					}
+					NGModel.otherQueryReport.value = s"""Query: ${NGModel.pastQueries.value.last.asInstanceOf[NGModel.TokenSearch].toString} Results: ${NGModel.citationResults.value.size}."""
+					NGController.updateUserMessage(s"Found ${NGModel.citationResults.value.size} passages.",0)
+				}
+				case _ => {
+					NGModel.currentStringSearchResults.value = None
+					NGController.updateUserMessage(s"Found no passages.",0)
+					NGModel.otherQueryReport.value = s"""Query: ${NGModel.pastQueries.value.last.asInstanceOf[NGModel.TokenSearch].toString} Results: ${NGModel.citationResults.value.size}."""
+				}
+			}
+			NGView.cursorNormal
+		} catch {
+			case e:Exception => {
+				NGController.updateUserMessage(s"Exception in NGQuery.getTokenSearch: ${e}", 2)
+				throw new Exception(s"NGQuery.getTokenSearch: ${e}")
+			}
+		}
 	}
 
 

@@ -65,7 +65,6 @@ object CiteMainQuery {
 			s"Current Library: ${libName}. ${libUrn}. ${libLicense}. At: ${CiteMainModel.serviceUrl.value}"
 		}	
 
-		g.console.log(CiteMainModel.currentLibraryMetadataString.value)
 	}
 
 }

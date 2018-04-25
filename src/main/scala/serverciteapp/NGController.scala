@@ -94,9 +94,8 @@ object NGController {
 		NGView.cursorWaiting
 		NGController.clearResults
 		NGController.updateUserMessage("Getting N-Grams. Please be patient…",0)
-		val timeStart = new js.Date().getTime()
-		NGModel.nGramResults.value.clear
-		NGModel.citationResults.value.clear
+//		NGModel.nGramResults.value.clear
+//		NGModel.citationResults.value.clear
 		val qString:String = {
 			q.urn match {
 				case Some(u) => {
@@ -106,7 +105,7 @@ object NGController {
 						{
 							q.fs match {
 								case "" => ""
-								case _ => s"&fs=${q.fs}"
+								case _ => s"&s=${q.fs}"
 							}
 						}
 					tempS
@@ -118,7 +117,7 @@ object NGController {
 						{
 							q.fs match {
 								case "" => ""
-								case _ => s"&fs=${q.fs}"
+								case _ => s"&s=${q.fs}"
 							}
 						}
 						tempS
@@ -132,68 +131,37 @@ object NGController {
 	}
 
 
-/*
 def executeQuery(q:NGModel.TokenSearch):Unit = {
+	NGView.cursorWaiting
 	NGController.clearResults
 	NGController.updateUserMessage(s"""Searching for tokens "${q.tt.mkString(" ")}". Please be patient…""",1)
-	val timeStart = new js.Date().getTime()
-	NGModel.nGramResults.value.clear
-	NGModel.citationResults.value.clear
+	//NGModel.nGramResults.value.clear
+	//NGModel.citationResults.value.clear
 
-	val tempCorpus:Option[Corpus] = {
-		O2Model.textRepo.value match {
-			case Some(tr) => {
-				q.urn match {
-					case Some(urn) => {
-							Some(O2Model.textRepo.value.get.corpus ~~ NGModel.urn.value)
-						}
-						case _ => {
-							Some(O2Model.textRepo.value.get.corpus)
-					}
+		val qString:String = {
+			val tt:String = {
+				s"""&t=${q.tt.mkString("&t=")}"""		
+			}
+			q.urn match {
+				case Some(u) => {
+					val tempS:String = s"${NGQuery.queryTokenSearch}/${u}" +
+						s"?dist=${q.p}" + 
+						s"&tt=${tt}"
+					tempS
 				}
-			}
-			case None => {
-				NGController.updateUserMessage("No library loaded.",2)
-				None
-			}
-
-		}
+				case None => {
+					val tempS:String = s"${NGQuery.queryTokenSearch}" +
+						s"?dist=${q.p}" + 
+						s"&tt=${tt}"
+					tempS
+				}
+			}	
+		}	
+		
+		val task = Task{ CiteMainQuery.getJson(NGQuery.getTokenSearch, qString, urn = q.urn) }
+		val future = task.runAsync	
 	}
 
-	// If there is only one token, do findToken
-	val foundCorpus:Option[Corpus] = {
-		q.tt.size match {
-			case 0 => {
-				NGController.updateUserMessage(s"No token entered.",2)
-				None
-			}
-			case 1 => {
-				tempCorpus match {
-					case Some(tc) => Some(tc.findToken(q.tt(0)))
-					case None => None
-				}
-			}
-			case _ => {
-				tempCorpus match {
-					case Some(tc) => Some(tc.findTokensWithin(q.tt,q.p))
-					case None => None
-				}
-			}
-		}
-	}
-
-	if ((tempCorpus != None) && (foundCorpus != None)){
-		for (n <- foundCorpus.get.nodes){
-				NGModel.citationResults.value += NGModel.SearchResult(Var(n.urn), Var(n.kwic(s" ${q.tt(0)} ",30)))
-		}
-	}
-
-	val timeEnd = new js.Date().getTime()
-	NGModel.otherQueryReport.value = s"""${q.toString} Time: ${(timeEnd - timeStart)/1000}. Found: ${NGModel.citationResults.value.size}."""
-
-	NGController.updateUserMessage(s"Found ${NGModel.citationResults.value.size} passages in ${(timeEnd - timeStart)/1000} seconds.",0)
-}
-*/
 
 
 
@@ -240,17 +208,16 @@ def executeQuery(q:NGModel.TokenSearch):Unit = {
 
 	}
 
-/*
 	def tokenSearchQuery:Unit = {
 		val newQuery = NGController.constructTokenSearchObject
-		if (O2Model.textRepo.value == None){
-			NGController.updateUserMessage("No library loaded.",2)
+
+		if (O2Model.hasTextRepo.value == false){
+			NGController.updateUserMessage(s"No library loaded. O2Model.hasTextRepo == ${O2Model.hasTextRepo.value}",2)
 		} else {
 			NGModel.pastQueries.value += newQuery
 			NGController.executeQuery(newQuery)
 		}
 	}
-*/
 
 	/* Sequence is:
 		1. NGController.stringSearchQuery
@@ -305,7 +272,6 @@ def executeQuery(q:NGModel.TokenSearch):Unit = {
 							NGQuery.queryCorpusForNgrams + 
 							s"/${urn}" + s"?ng=${s}"
 						} 
-						g.console.log(s"${qString}")
 						val task = Task{ CiteMainQuery.getJson(NGQuery.getCorpusForNgram, qString, urn = Some(urn)) }
 						val future = task.runAsync	
 					}
@@ -314,7 +280,6 @@ def executeQuery(q:NGModel.TokenSearch):Unit = {
 							NGQuery.queryCorpusForNgrams + 
 							s"?ng=${s}"
 						} 
-						g.console.log(s"${qString}")
 						val task = Task{ CiteMainQuery.getJson(NGQuery.getCorpusForNgram, qString, urn = None) }
 						val future = task.runAsync	
 					}

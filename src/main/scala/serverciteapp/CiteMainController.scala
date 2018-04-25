@@ -61,7 +61,6 @@ object CiteMainController {
 		of the CEX library.
 	*/
 	def hideTabs:Unit = {
-	  g.console.log("hiding Tabs")
 	  CiteMainModel.showTexts.value = false 
 	  CiteMainModel.showNg.value = false
 	  CiteMainModel.showCollections.value = false
@@ -75,8 +74,9 @@ object CiteMainController {
 	*/
 	def clearRepositories:Unit = {
 		O2Model.currentCatalog.value = None
-		/*
+		NGController.clearResults
 		NGModel.corpusOrUrn.value = None
+		/*
 		ObjectModel.collRep.value = None
 		CiteMainModel.mainLibrary.value = None
 		CommentaryModel.clearComments
