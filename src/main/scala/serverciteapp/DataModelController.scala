@@ -74,7 +74,6 @@ object DataModelController {
 		}
 	}
 
-/*
 	def hasObject(u:Cite2Urn):Boolean = {
 		val urn:Cite2Urn = {
 			val tempU:Cite2Urn = u.dropExtensions	
@@ -83,9 +82,9 @@ object DataModelController {
 				case _ => tempU
 			}
 		}
-		ObjectModel.collRep.value match {
-			case Some(cr) => {
-				cr.citableObjects.filter(_.urn == urn.dropExtensions).size match {
+		ObjectModel.labelMap.value match {
+			case Some(lm) => {
+				lm.filterKeys(_ ~~ urn).size match {
 					case 1 => true
 					case _ => false
 				}	
@@ -95,7 +94,6 @@ object DataModelController {
 			}
 		}	
 	}
-	*/
 
 	/* Check to see if the Citable Image datamodel is:
 			1. supported by this app
@@ -146,8 +144,8 @@ object DataModelController {
  		u match {
  			case CtsUrn(_) => retrieveTextPassage(None, u.asInstanceOf[CtsUrn])
  			case Cite2Urn(_) => {
- 				g.console.log("Retrieving objects not yet implemented.")
- 			//	retrieveObject(None, u.asInstanceOf[Cite2Urn])
+ 			//	g.console.log("Retrieving objects not yet implemented.")
+ 				retrieveObject(None, u.asInstanceOf[Cite2Urn])
  			}
  			case _ => 	CiteMainController.updateUserMessage(s"Could not resolve ${u} to either CtsUrn or Cite2Urn",2)
 
@@ -159,14 +157,12 @@ object DataModelController {
 			CiteMainView.changeTab("text")
 	}
 
-   /*
 	def retrieveObject(contextUrn:Option[Cite2Urn] = None, urn:Cite2Urn):Unit = {
 			val tempUrn:Cite2Urn = urn.dropExtensions
 			ObjectController.changeUrn(tempUrn)
 			ObjectController.changeObject
 			CiteMainView.changeTab("object")
 	}
-	*/
 
 
 	/*

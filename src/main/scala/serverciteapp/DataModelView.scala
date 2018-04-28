@@ -26,16 +26,19 @@ import scala.scalajs.js.annotation.JSExport
 @JSExportTopLevel("serverciteapp.DataModelView")
 object DataModelView {
 
-/*
 @dom
 def objectLinks(contextUrn:Option[Cite2Urn], propVal:Cite2Urn) = {
 	propVal.objectComponentOption match {
 		case Some(oc) => {
 			<ul class="citeLinks_linksList">
+				<!-- 
 				{ CiteBinaryImageView.imageThumbItem(propVal, CiteBinaryImageModel.imgUseLocal.bind).bind }
+				-->
 				{ DataModelView.objectLinkItem(contextUrn, propVal).bind }
+				<!-- 
 				{ DataModelView.imageLinkItem(contextUrn, propVal).bind }
 				{ DataModelView.dseLinkItem(contextUrn, propVal).bind }
+				-->
 			</ul>
 		}
 		case None => { 
@@ -45,7 +48,6 @@ def objectLinks(contextUrn:Option[Cite2Urn], propVal:Cite2Urn) = {
 		}
 	}
 }
-*/
 
 @dom
 def textLinks(contextUrn:Option[Cite2Urn], u:CtsUrn) = {
@@ -79,81 +81,86 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 }
 
 
-/*
 @dom
 	def objectLinkItem(contextUrn:Option[Cite2Urn],propVal:Cite2Urn,labeled:Boolean = false, idString:String = "", groupId:String = "") = {
-		val tempUrn:Cite2Urn = propVal.dropExtensions.dropProperty
-		val roiGroupClass:String = {
-			groupId match {
-				case s if (s == "") => ""
-				case _ => s"image_roiGroup_${groupId}"
+			val tempUrn:Cite2Urn = {
+				propVal.versionOption match {
+					case Some(v) => propVal.dropExtensions.dropProperty
+					case None => propVal.dropExtensions
+				}
 			}
-		}
-		val groupClass:String = s"citeLinks_linkItem ${roiGroupClass}"
-		DataModelController.hasObject(tempUrn) match {
-			case true => {
-				<li class={groupClass} id={idString}>
-					<a onclick={ event: Event => {
-							DataModelController.retrieveObject(contextUrn,tempUrn)
+
+			val roiGroupClass:String = {
+				groupId match {
+					case s if (s == "") => ""
+					case _ => s"image_roiGroup_${groupId}"
+				}
+			}
+			val groupClass:String = s"citeLinks_linkItem ${roiGroupClass}"
+			g.console.log(s"hasUrn ${tempUrn}: ${DataModelController.hasObject(tempUrn)}")
+			DataModelController.hasObject(tempUrn) match {
+				case true => {
+					<li class={groupClass} id={idString}>
+						<a onclick={ event: Event => {
+								DataModelController.retrieveObject(contextUrn,tempUrn)
+							}
+					} > { 
+						labeled match {
+							case true => {
+								s"${ObjectModel.labelMap.value.get(propVal.dropExtensions.dropProperty)}" 
+							}
+							case _ => {
+								"View Item"
+							}
 						}
-				} > { 
-					labeled match {
-						case true => {
-							s"${ObjectModel.collRep.value.get.citableObject(propVal.dropExtensions.dropProperty).label}" 
+					}</a></li>
+				}
+				case _ => {
+					// need to see if it is a collection or range
+					var isBrowsable:Boolean = {
+						( propVal.isRange ) || 
+						( propVal.objectComponentOption == None)
+					}
+					isBrowsable match {
+						case false => {
+							labeled match {
+								case true => { <li class={groupClass}>{ s"Object ${tempUrn} not in Library" }</li> }
+								case _ => { <li><span id={idString}>Object not in Library</span></li> }
+							}
 						}
 						case _ => {
-							"View Item"
-						}
-					}
-				}</a></li>
-			}
-			case _ => {
-				// need to see if it is a collection or range
-				var isBrowsable:Boolean = {
-					( propVal.isRange ) || 
-					( propVal.objectComponentOption == None)
-				}
-				isBrowsable match {
-					case false => {
-						labeled match {
-							case true => { <li class={groupClass}>{ s"Object ${tempUrn} not in Library" }</li> }
-							case _ => { <li><span id={idString}>Object not in Library</span></li> }
-						}
-					}
-					case _ => {
-						val coll:Option[CiteCollectionDef] = {
-							ObjectModel.collRep.value.get.catalog.collection(propVal)
-						}
-						coll match {
-							case Some(c) => {
-								<li class={groupClass} id={idString}>
-									<a onclick={ event: Event => {
-											DataModelController.retrieveObject(contextUrn,tempUrn)
+							val coll:Option[CiteCollectionDef] = {
+								ObjectModel.currentCatalog.value.get.collection(propVal)
+							}
+							coll match {
+								case Some(c) => {
+									<li class={groupClass} id={idString}>
+										<a onclick={ event: Event => {
+												DataModelController.retrieveObject(contextUrn,tempUrn)
+											}
+									} > { 
+									labeled match {
+										case true => {  
+											val l:String = c.collectionLabel
+											l
 										}
-								} > { 
-								labeled match {
-									case true => {  
-										val l:String = c.collectionLabel
-										l
+										case _ => { "Browse Collection" }
 									}
-									case _ => { "Browse Collection" }
-								}
 
-								}</a></li>
+									}</a></li>
+								}
+								case None => {
+									<li class={groupClass} id={idString}>
+										{ "Collection not in library." }
+									</li>
+								}
 							}
-							case None => {
-								<li class={groupClass} id={idString}>
-									{ "Collection not in library." }
-								</li>
-							}
+							
 						}
-						
 					}
 				}
 			}
-		}
 	}	
-	*/
 
 	/*
 	@dom

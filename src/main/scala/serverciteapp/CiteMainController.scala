@@ -76,6 +76,8 @@ object CiteMainController {
 		O2Model.currentCatalog.value = None
 		NGController.clearResults
 		NGModel.corpusOrUrn.value = None
+		ObjectModel.collections.value.clear
+		ObjectModel.labelMap.value = None
 		/*
 		ObjectModel.collRep.value = None
 		CiteMainModel.mainLibrary.value = None
@@ -102,6 +104,9 @@ object CiteMainController {
 			// O2Query.updateCatalog, in turn, takes care of activating the "Explore Texts" tab.
 
 			// Collection Repository Stuff
+			ObjectModel.updateCollections // which hands off to ObjectQuery.updateCatalog
+			// ObjectQuery.updateCatalog, in turn, takes care of activating the "Collections" tab.
+			ObjectModel.updateLabelMap
 			// Relations stuff
 			// Data Model Stuff
 
