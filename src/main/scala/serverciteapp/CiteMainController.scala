@@ -110,6 +110,9 @@ object CiteMainController {
 			// Relations stuff
 			// Data Model Stuff
 
+			val dmTask = Task{ CiteMainQuery.getJson(CiteMainQuery.getDataModels, s"/datamodels", urn = None) }
+			val dmFuture = dmTask.runAsync	
+
 			// Load request parameter
 			CiteMainModel.requestParameterUrn.value match {
 				case Some(u) => {

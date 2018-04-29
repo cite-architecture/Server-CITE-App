@@ -100,7 +100,6 @@ object DataModelController {
 			2. present in this library
 			3. implemented by the collection represented by `u`
 	*/
-	/*
 	def isCitableImage(u:Cite2Urn):Boolean ={
 		val collUrn:Cite2Urn = u.dropSelector
 		val citableImageModelUrn:Cite2Urn = Cite2Urn("urn:cite2:cite:datamodels.v1:imagemodel")
@@ -116,7 +115,6 @@ object DataModelController {
 			}
 		}
 	}
-	*/	
 
 	/* Check to see if the Commentary datamodel is present */
 	/*
@@ -164,8 +162,7 @@ object DataModelController {
 			CiteMainView.changeTab("object")
 	}
 
-
-	/*
+/*
 	def viewImage(
 		contextUrn:Option[Cite2Urn], 
 		implementingObject:CiteObject, 
@@ -174,9 +171,7 @@ object DataModelController {
 	):Unit = {
 		viewImage(contextUrn, implementingObject, urn, Some(Vector(roiObj)))
 	}
-	*/
 
-	/*
 	def viewImage(
 		contextUrn:Option[Cite2Urn], 
 		implementingObject:CiteObject, 

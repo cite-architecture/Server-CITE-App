@@ -67,4 +67,35 @@ object CiteMainQuery {
 
 	}
 
+	/* DataModels */
+	def getDataModels(jstring:String, urn:Option[Urn] =None):Unit ={
+		val citeObjJson:CiteObjJson = CiteObjJson()
+		val dms:Vector[DataModel] = citeObjJson.dataModels(jstring)
+		val odms:Option[Vector[DataModel]] = {
+			dms.size match {
+				case n if (n > 1) => Some(dms)
+				case _ => None
+			}	
+		}
+		odms match {
+			case Some(dm) => {
+					DataModelModel.dataModels.value = Some(dm)
+					/*
+					CiteBinaryImageController.discoverProtocols
+					CiteBinaryImageController.setImageSwitch
+					CiteBinaryImageModel.hasBinaryImages.value match {
+						case true => CiteMainModel.showImages.value = true 
+						case _ => CiteMainModel.showImages.value = false
+					}
+					CiteBinaryImageController.setBinaryImageCollections
+					CommentaryModel.loadAllComments
+					*/
+					g.console.log(s"Got ${dm.size} models: ${dm}")
+				}
+				case None => { 
+					DataModelController.clearDataModels
+				}
+		}
+	}	
+
 }
