@@ -303,9 +303,6 @@ object ObjectController {
 		val numObj:Int = ObjectModel.boundObjects.value.size
 		val tLim:Int = ObjectModel.limit.value
 		val tOff:Int = ObjectModel.offset.value
-		g.console.log(s"numObj = ${numObj}")
-		g.console.log(s"tLim = ${tLim}")
-		g.console.log(s"tOff = ${tOff}")
 		val startIndex:Int = tOff - 1
 		val endIndex:Int = {
 			if ( (tOff + tLim - 1)  >= numObj ) {
@@ -409,12 +406,9 @@ object ObjectController {
 		}
 	}
 
- @JSExport
-	def propertyUrnClick(urnSt:String) = {
-		  // below is how you invoke a cofirmation dialog
-			// val cc = window.confirm("Hi")
-			//CiteLinks.switch(urnSt)
-	}
+// below is how you invoke a cofirmation dialog
+// val cc = window.confirm("Hi")
+//CiteLinks.switch(urnSt)
 
 
 }

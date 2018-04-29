@@ -86,7 +86,7 @@ object ObjectQuery {
 	val queryPagedObjects:String = "/objects/paged/"
 
 	def getPagedObjects(jstring:String, urn:Option[Urn] = None):Unit = {
-
+		// If the current in-memory method proves untenable, we'll fill this out.
 	}
 
 	def doInsertFirstObjectUrn(jstring:String, urn:Option[Urn] = None):Unit = {
@@ -118,7 +118,6 @@ object ObjectQuery {
 				   vco.foreach( fc => {
 						ObjectModel.boundObjects.value += fc
 					})
-					g.console.log(s"from query to set display with ${ObjectModel.boundObjects.value.size} bound objects")
 					ObjectController.setDisplay
 				}
 				case _ => {

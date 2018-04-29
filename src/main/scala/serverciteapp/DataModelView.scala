@@ -97,7 +97,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 				}
 			}
 			val groupClass:String = s"citeLinks_linkItem ${roiGroupClass}"
-			g.console.log(s"hasUrn ${tempUrn}: ${DataModelController.hasObject(tempUrn)}")
 			DataModelController.hasObject(tempUrn) match {
 				case true => {
 					<li class={groupClass} id={idString}>

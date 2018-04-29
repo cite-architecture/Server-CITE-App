@@ -15,6 +15,8 @@ import edu.holycross.shot.citeobj._
 import scala.scalajs.js.Dynamic.{ global => g }
 import scala.scalajs.js.annotation.JSExport
 import js.annotation._
+import monix.execution.Scheduler.Implicits.global
+import monix.eval._
 
 
 @JSExportTopLevel("serverciteapp.QueryObjectController")
@@ -139,43 +141,30 @@ object QueryObjectController {
 	}
 
 	def doStringSearch(cq:QueryObjectModel.CiteCollectionQuery):Unit = {
-		/*
-		if (cq.qRegex.get) {
-			cq.qProperty match {
-				case None =>{
-						val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.regexMatch(cq.qSearchString.get)
-						cq.qCollection match {
-							case Some(u) =>{
-								val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-								 loadSearchResults(cq,fv)
-							}
-						  case _ => loadSearchResults(cq,ov)
-						}
-				}
-				case _ => {
-						val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.regexMatch(cq.qProperty.get.urn,cq.qSearchString.get)
-						loadSearchResults(cq,ov)
-				}
-			}
-		} else {
-			cq.qProperty match {
-				case None =>{
-						val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.stringContains(cq.qSearchString.get,cq.qCaseSensitive.get)
-						cq.qCollection match {
-							case Some(u) =>{
-								val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-								 loadSearchResults(cq,fv)
-							}
-						  case _ => loadSearchResults(cq,ov)
-						}
-				}
-				case _ => {
-						val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.stringContains(cq.qProperty.get.urn,cq.qSearchString.get,cq.qCaseSensitive.get)
-						loadSearchResults(cq,ov)
-				}
+		ObjectView.cursorWaiting
+	   QueryObjectModel.currentQuery.value =  Some(cq)
+	   val propString:String = {
+	   	cq.qProperty match {
+	   		case Some(p) => s"&propertyurn=${p}"
+	   		case None => ""
+	   	}
+	   }
+	   val collString:String = {
+	   	cq.qCollection match {
+	   		case Some(c) => s"/${c}"
+	   		case None => ""
+	   	}
+	   }
+		val queryString:String = {
+			if (cq.qRegex.get) {
+				s"/objects/find/regexmatch${collString}?find=${cq.qSearchString.get}${propString}"
+			} else {
+				s"/objects/find/stringcontains${collString}?find=${cq.qSearchString.get}${propString}"
 			}
 		}
-		*/
+		//g.console.log(queryString)
+		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
+		val future = task.runAsync	
 	}
 
 	def initNumericSearch:Unit = {
@@ -197,146 +186,48 @@ object QueryObjectController {
 	}
 
 	def doNumericSearch(cq:QueryObjectModel.CiteCollectionQuery):Unit  = {
-		/*
-			cq.qProperty match {
-				case None =>{
-					cq.qNumOperator.get match {
-						case "eq" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.valueEquals(cq.qNum1.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "lt" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericLessThan(cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "gt" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericGreaterThan(cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "lteq" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericLessThanOrEqual(cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "gteq" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericGreaterThanOrEqual(cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "inRange" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericWithin(cq.qNum1.get.toDouble,cq.qNum2.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case _ @ op => {
-							ObjectController.updateUserMessage(s"Unrecognized numeric operator: ${op}.",2)
-						}
-
-					}
+		ObjectView.cursorWaiting
+	   QueryObjectModel.currentQuery.value =  Some(cq)
+	   val propString:String = {
+	   	cq.qProperty match {
+	   		case Some(p) => s"&propertyurn=${p}"
+	   		case None => ""
+	   	}
+	   }
+	   val collString:String = {
+	   	cq.qCollection match {
+	   		case Some(c) => s"/${c}"
+	   		case None => ""
+	   	}
+	   }
+	   val queryString:String = {
+			cq.qNumOperator.get match {
+				case "eq" => {
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
 				}
-				case _ => {
-					cq.qNumOperator.get match {
-						case "eq" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.valueEquals(cq.qProperty.get.urn,cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "lt" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericLessThan(cq.qProperty.get.urn,cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "gt" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericGreaterThan(cq.qProperty.get.urn,cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "lteq" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericLessThanOrEqual(cq.qProperty.get.urn,cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "gteq" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericGreaterThanOrEqual(cq.qProperty.get.urn,cq.qNum1.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case "inRange" => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.numericWithin(cq.qProperty.get.urn,cq.qNum1.get.toDouble,cq.qNum2.get.toDouble)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-						}
-						case _ @ op => {
-							ObjectController.updateUserMessage(s"Unrecognized numeric operator: ${op}.",2)
-						}
-
-					}
+				case "lt" => {
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+				}
+				case "gt" => {
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+				}
+				case "lteq" => {
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+				}
+				case "gteq" => {
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+				}
+				case "inRange" => {
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&n2=${cq.qNum2.get}&op=within${propString}"
+				}
+				case _ @ op => {
+					ObjectController.updateUserMessage(s"Unrecognized numeric operator: ${op}.",2)
+					throw new Exception(s"${op} is not a recognized numeric operator.")
 				}
 			}
-			*/
+		}	
+		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
+		val future = task.runAsync	
 	}
 
 
@@ -357,30 +248,26 @@ object QueryObjectController {
 	}
 
 	def doContVocabSearch(cq:QueryObjectModel.CiteCollectionQuery):Unit = {
-		/*
-			cq.qProperty match {
-				case None =>{
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.valueEquals(cq.qControlledVocabItem.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-				}
-				case _ => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.valueEquals(cq.qProperty.get.urn, cq.qControlledVocabItem.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-				}
-			}
-			*/
+		ObjectView.cursorWaiting
+	   QueryObjectModel.currentQuery.value =  Some(cq)
+	   val propString:String = {
+	   	cq.qProperty match {
+	   		case Some(p) => s"&propertyurn=${p}"
+	   		case None => ""
+	   	}
+	   }
+	   val collString:String = {
+	   	cq.qCollection match {
+	   		case Some(c) => s"/${c}"
+	   		case None => ""
+	   	}
+	   }
+	   val queryString:String = {
+	   	s"/objects/find/regexmatch${collString}?find=${cq.qControlledVocabItem.get}${propString}"	
+		}
+		//g.console.log(queryString)
+		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
+		val future = task.runAsync	
 	}
 
 	def initBooleanSearch:Unit = {
@@ -400,30 +287,26 @@ object QueryObjectController {
 	}
 
 	def doBooleanSearch(cq:QueryObjectModel.CiteCollectionQuery):Unit = {
-		/*
-			cq.qProperty match {
-				case None =>{
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.valueEquals(cq.qBoolVal.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-				}
-				case _ => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.valueEquals(cq.qProperty.get.urn, cq.qBoolVal.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-				}
-			}
-			*/
+		ObjectView.cursorWaiting
+	   QueryObjectModel.currentQuery.value =  Some(cq)
+	   val propString:String = {
+	   	cq.qProperty match {
+	   		case Some(p) => s"&propertyurn=${p}"
+	   		case None => ""
+	   	}
+	   }
+	   val collString:String = {
+	   	cq.qCollection match {
+	   		case Some(c) => s"/${c}"
+	   		case None => ""
+	   	}
+	   }
+	   val queryString:String = {
+	   	s"/objects/find/valueequals${collString}?value=${cq.qBoolVal.get}&type=boolean${propString}"	
+	   }
+		//g.console.log(queryString)
+		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
+		val future = task.runAsync	
 	}
 
 	def initCtsUrnSearch:Unit = {
@@ -443,30 +326,26 @@ object QueryObjectController {
 	}
 
 	def doCtsUrnSearch(cq:QueryObjectModel.CiteCollectionQuery):Unit = {
-		/*
-			cq.qProperty match {
-				case None =>{
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.urnMatch(cq.qCtsUrn.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-				}
-				case _ => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.urnMatch(cq.qProperty.get.urn, cq.qCtsUrn.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-				}
-			}
-			*/
+		ObjectView.cursorWaiting
+	   QueryObjectModel.currentQuery.value =  Some(cq)
+	   val propString:String = {
+	   	cq.qProperty match {
+	   		case Some(p) => s"&propertyurn=${p}"
+	   		case None => ""
+	   	}
+	   }
+	   val collString:String = {
+	   	cq.qCollection match {
+	   		case Some(c) => s"/${c}"
+	   		case None => ""
+	   	}
+	   }
+	   val queryString:String = {
+	   	s"/objects/find/urnmatch${collString}?find=${cq.qCtsUrn.get}${propString}"
+	   }	
+		//g.console.log(queryString)
+		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
+		val future = task.runAsync	
 	}
 
 	def initCite2UrnSearch:Unit = {
@@ -486,42 +365,38 @@ object QueryObjectController {
 	}
 
 	def doCite2UrnSearch(cq:QueryObjectModel.CiteCollectionQuery):Unit = {
-		/*
-			cq.qProperty match {
-				case None =>{
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.urnMatch(cq.qCite2Urn.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-				}
-				case _ => {
-							val ov:Vector[CiteObject] = ObjectModel.collRep.value.get.urnMatch(cq.qProperty.get.urn, cq.qCite2Urn.get)
-							cq.qCollection match {
-								case Some(u) =>{
-									val fv:Vector[CiteObject] = ov.filter(_.urn ~~ u)
-									 loadSearchResults(cq,fv)
-								}
-							  case _ => loadSearchResults(cq,ov)
-							}
-				}
-			}
-			*/
+		ObjectView.cursorWaiting
+	   QueryObjectModel.currentQuery.value =  Some(cq)
+	   val propString:String = {
+	   	cq.qProperty match {
+	   		case Some(p) => s"&propertyurn=${p}"
+	   		case None => ""
+	   	}
+	   }
+	   val collString:String = {
+	   	cq.qCollection match {
+	   		case Some(c) => s"/${c}"
+	   		case None => ""
+	   	}
+	   }
+	   val queryString:String = {
+	   	s"/objects/find/urnmatch${collString}?find=${cq.qCite2Urn.get}${propString}"
+	   }	
+		//g.console.log(queryString)
+		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
+		val future = task.runAsync	
 	}
 
-	def loadSearchResults(cq:QueryObjectModel.CiteCollectionQuery, ov:Vector[CiteObject]):Unit = {
-				cq.numResults = ov.size
+	def loadSearchResults(ov:Vector[CiteObject]):Unit = {
+				//cq.numResults = ov.size
 				if (ov.size > 0 ){
 						ov.size match {
 							case 1 => ObjectController.updateUserMessage(s"Search found ${ov.size} matching object.",0)
 							case _ => ObjectController.updateUserMessage(s"Search found ${ov.size} matching objects.",0)
 						}
 						ObjectModel.clearObject
-						QueryObjectModel.currentQuery.value =  Some(cq)
-						addToSearchHistory(cq)
+						//QueryObjectModel.currentQuery.value =  Some(cq)
+						addToSearchHistory(QueryObjectModel.currentQuery.value.get)
 						ObjectModel.objectOrCollection.value =  "search"
 						if (ObjectModel.limit.value > ov.size){ ObjectModel.limit.value =  ov.size }
 						ObjectModel.offset.value =  1
@@ -540,7 +415,7 @@ object QueryObjectController {
 						ObjectController.setDisplay
 				} else {
 						ObjectModel.clearObject
-						QueryObjectModel.currentQuery.value =  Some(cq)
+						//QueryObjectModel.currentQuery.value =  Some(cq)
 						ObjectController.updateUserMessage("Search found no matching objects.",1)
 				}
 

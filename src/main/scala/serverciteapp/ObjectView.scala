@@ -348,13 +348,28 @@ def objectCollectionsContainer = {
 			{ cc.collectionLabel }
 			{ if(cc.isOrdered) "[ordered]" else "[unordered]" }
 			<br/>
-			{ ObjectModel.countObjectsInCollection(cc.urn).toString } objects.
+			{ ObjectView.numberInCollection(cc.urn).bind }
 
 			</li>
 		}
 	}
 	</ul>
 	</div>
+}
+
+/* Number of objects in collections */
+@dom
+def numberInCollection(u:Cite2Urn) = {
+	ObjectModel.labelMap.bind match {
+		case Some(lm) => {
+			val i:Integer = lm.filterKeys( _ ~~ u ).size
+			s"${i} object${if (i > 1) "s"}." 
+		}
+		case None => {
+			"No objects."
+		}
+	}
+
 }
 
 

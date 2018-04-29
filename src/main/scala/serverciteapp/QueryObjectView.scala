@@ -68,11 +68,6 @@ object QueryObjectView {
 					ObjectController.updateUserMessage("Querying Collection. Please be patient…",1)
 					val task = Task{QueryObjectController.initQuery}	
 					val future = task.runAsync
-					/*
-					js.timers.setTimeout(200){
-						Future{ QueryObjectController.initQuery }
-					}
-					*/
 				}
 			}
 		>{ if (QueryObjectModel.isValidSearch.bind){
@@ -89,7 +84,6 @@ object QueryObjectView {
 	@dom
 	def queryOneProp = {
 		<div class={
-			//val pselect = QueryObjectModel.queryProperty.get
 			QueryObjectModel.queryProperty.bind match {
 				case None => "queryObject_qform queryObject_formhidden"
 				case _ => "queryObject_qform queryObject_formvisible"
@@ -566,7 +560,7 @@ def searchReportContainer = {
 
 		{ QueryObjectModel.currentQuery.bind match{
 			case Some(c) => c.toString
-			case _ => ""
+			case None => ""
 
 			}
 		}

@@ -69,7 +69,7 @@ object ObjectModel {
 
 	// For Display
 	val offset = Var(1)
-	val limit = Var(4)
+	val limit = Var(5)
 	val showObjects = Var(false) // if true, show a whole object; false, URN+label
 	val browsable = Var(false)
 	val objectReport = Var("")
@@ -284,17 +284,14 @@ object ObjectModel {
 		val future = task.runAsync
 	}
 
-
-	def countObjectsInCollection(urn:Cite2Urn):Int = {
-		val howMany:Int = {
-			ObjectModel.labelMap.value match {
-				case Some(lm) => {
-					lm.filterKeys( _ ~~ urn ).size
-				}
-				case None => 0
+	@dom
+	def countObjectsInCollection(urn:Cite2Urn) = {
+		ObjectModel.labelMap.bind match {
+			case Some(lm) => {
+				lm.filterKeys( _ ~~ urn ).size
 			}
+			case None => 0
 		}
-		howMany
 	}
 
 

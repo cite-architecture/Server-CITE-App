@@ -202,8 +202,8 @@ object QueryObjectModel {
 	@dom
 	def loadControlledVocabulary = {
 		QueryObjectModel.currentQueryCollection.value match {
+			case Some(qc) => loadControlledVocablOne
 			case None => loadControlledVocablAll
-			case _ => loadControlledVocablOne
 		}
 	}
 
@@ -230,7 +230,7 @@ object QueryObjectModel {
 
 	@dom
 	def loadControlledVocablOne = {
-		QueryObjectModel.queryProperty.bind match {
+		QueryObjectModel.queryProperty.value match {
 			case None => {
 				QueryObjectModel.currentControlledVocabulary.value.clear
 				for (p <- QueryObjectModel.currentQueryCollectionProps.value){
