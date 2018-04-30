@@ -25,7 +25,7 @@ object CiteMainView {
 	val ngramView = NGView.nGdiv
 	val objectView = ObjectView.objectDiv
 	val imageView = CiteBinaryImageView.imageDiv
-	val serverMode = Var(false)
+	val serverMode = Var(true)
 /*
 	val relationsView = RelationsView.relationsDiv
 	*/

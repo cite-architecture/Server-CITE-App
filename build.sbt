@@ -25,7 +25,7 @@ libraryDependencies ++= Seq(
   "edu.holycross.shot" %%% "citebinaryimage" % "1.1.2",
   //"edu.holycross.shot" %%% "citejson" % "2.0.0" from "file:///cite/scala/unmanaged_jars/citejson_sjs0.6_2.12-2.0.0.jar",
   "edu.holycross.shot" %%% "citejson" % "2.3.0" from "file:////Users/cblackwell/Dropbox/CITE/scala/unmanaged_jars/citejson_sjs0.6_2.12-2.3.0.jar",
-  "com.thoughtworks.binding" %%% "dom" % "latest.version",
+  "com.thoughtworks.binding" %%% "dom" % "11.0.1",
 )
 libraryDependencies ++= Seq(
   "io.circe" %%% "circe-core",
@@ -49,6 +49,7 @@ spa := {
 
 //	val defaultLibraryUrl = "https://raw.githubusercontent.com/cite-architecture/citedx/master/libraries/millionplus.cex"
   val defaultServiceUrl = "http://beta.hpcc.uh.edu/scs"
+//  val defaultServiceUrl = "http://localhost:9000"
 
   val compileFirst = (fullOptJS in Compile).value
 
