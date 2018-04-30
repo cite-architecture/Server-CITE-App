@@ -108,7 +108,6 @@ object O2Query {
 	def getVersionsForUrn(jstring:String, urn:Option[Urn] = None):Unit = {
 		val cat:Catalog = o2Json.o2Catalog(jstring)			
 		O2Model.versionsForCurrentUrn.value = cat.size	
-		g.console.log(s"versions for urn: ${O2Model.versionsForCurrentUrn.value}")
 	}
 
 	// label for urn

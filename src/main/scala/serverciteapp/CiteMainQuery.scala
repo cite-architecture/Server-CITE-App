@@ -80,17 +80,14 @@ object CiteMainQuery {
 		odms match {
 			case Some(dm) => {
 					DataModelModel.dataModels.value = Some(dm)
-					/*
-					CiteBinaryImageController.discoverProtocols
 					CiteBinaryImageController.setImageSwitch
-					CiteBinaryImageModel.hasBinaryImages.value match {
-						case true => CiteMainModel.showImages.value = true 
-						case _ => CiteMainModel.showImages.value = false
-					}
-					CiteBinaryImageController.setBinaryImageCollections
+					/*
 					CommentaryModel.loadAllComments
 					*/
-					g.console.log(s"Got ${dm.size} models: ${dm}")
+			
+					// Start the process of building a binary image collection repo
+					CiteBinaryImageModel.initBinaryImageRepo
+			
 				}
 				case None => { 
 					DataModelController.clearDataModels

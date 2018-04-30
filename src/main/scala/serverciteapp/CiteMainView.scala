@@ -24,8 +24,9 @@ object CiteMainView {
 	val textView = O2View.o2div
 	val ngramView = NGView.nGdiv
 	val objectView = ObjectView.objectDiv
-/*
 	val imageView = CiteBinaryImageView.imageDiv
+	val serverMode = Var(false)
+/*
 	val relationsView = RelationsView.relationsDiv
 	*/
 
@@ -39,7 +40,62 @@ object CiteMainView {
 		}
 	}
 
-
+	// *** Apropos Microservice ***
+	@dom
+	def imageLocalRemoteSwitch = {
+			<div id="imageSourceSwitchContainer" class={
+				CiteMainView.serverMode.value match {
+					case false => {	
+						CiteBinaryImageModel.hasBinaryImages.bind match {
+							case true => "app_visible"
+							case _ => "app_hidden"
+						}
+					}
+					case _ => "app_hidden"
+				}
+			}>
+				Image Source:
+				<span class={
+					(CiteBinaryImageModel.hasRemoteOption.bind && CiteBinaryImageModel.hasLocalOption.bind) match {
+				    		case true => "app_hidden"	
+				    		case false => "app_visible"	
+			    	}	
+				}>
+					<span class={ 
+						CiteBinaryImageModel.hasLocalOption.bind match {
+							case true => "app_visible"
+							case _ => "app_hidden"
+						}
+					}>Using Local Images</span>
+					<span class={ 
+						CiteBinaryImageModel.hasRemoteOption.bind match {
+							case true => "app_visible"
+							case _ => "app_hidden"
+						}
+			  	   }>Using Remote Images</span>
+			  	</span>
+				<div class={
+						(CiteBinaryImageModel.hasRemoteOption.bind && CiteBinaryImageModel.hasLocalOption.bind) match {
+					    		case true => "onoffswitch app_visible"	
+					    		case false => "onoffswitch app_hidden"	
+				    	}	
+					}>
+				    <input type="checkbox" name="onoffswitch" class={
+				    	
+				    	(CiteBinaryImageModel.hasRemoteOption.bind && CiteBinaryImageModel.hasLocalOption.bind) match {
+				    		case true => "onoffswitch-checkbox app_visible"	
+				    		case false => "onoffswitch-checkbox app_hidden"	
+				    	}
+				    	} id="citeMain_localImageSwitch" checked={CiteBinaryImageModel.imgUseLocal.bind}
+						onchange={ event: Event => CiteBinaryImageController.setPreferredImageSource}
+						/>
+				    <label class="onoffswitch-label" for="citeMain_localImageSwitch">
+				        <span class="image_onoffswitch-inner onoffswitch-inner"></span>
+				        <span class="image_onoffswitch-switch onoffswitch-switch"></span>
+				    </label>
+				</div>
+			</div>
+	}
 
 	@dom
 	def mainMessageDiv = {
@@ -59,9 +115,11 @@ object CiteMainView {
 			<span id="app_help_link">[ <a target="_blank" href="https://github.com/cite-architecture/CITE-App/wiki">Online Help</a> ]</span>
 		</header>
 
+
 		<article id="main_Container">
 
 			{ mainMessageDiv.bind }
+			{ imageLocalRemoteSwitch.bind }
 			<div class="app_tabs">
 
 				<div id="app_tab_texts"
@@ -116,6 +174,7 @@ object CiteMainView {
 					<input type="radio" id="tab-4" name="tab-group-1" checked={ false }/>
 					<label class="tab_label" for="tab-4">Images</label>
 						<div class="content">
+							{ imageView.bind }
 						</div>
 				</div>
 

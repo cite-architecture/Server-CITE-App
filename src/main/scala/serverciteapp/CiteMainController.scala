@@ -78,8 +78,8 @@ object CiteMainController {
 		NGModel.corpusOrUrn.value = None
 		ObjectModel.collections.value.clear
 		ObjectModel.labelMap.value = None
+		CiteBinaryImageModel.binaryImageCollectionRepo.value = None
 		/*
-		ObjectModel.collRep.value = None
 		CiteMainModel.mainLibrary.value = None
 		CommentaryModel.clearComments
 		*/
@@ -107,9 +107,13 @@ object CiteMainController {
 			ObjectModel.updateCollections // which hands off to ObjectQuery.updateCatalog
 			// ObjectQuery.updateCatalog, in turn, takes care of activating the "Collections" tab.
 			ObjectModel.updateLabelMap
+
+
+
 			// Relations stuff
 			// Data Model Stuff
-
+			//     the datamodel task will, in turn, start the process
+			//     of building out CiteBinaryImages
 			val dmTask = Task{ CiteMainQuery.getJson(CiteMainQuery.getDataModels, s"/datamodels", urn = None) }
 			val dmFuture = dmTask.runAsync	
 

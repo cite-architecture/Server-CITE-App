@@ -31,12 +31,10 @@ def objectLinks(contextUrn:Option[Cite2Urn], propVal:Cite2Urn) = {
 	propVal.objectComponentOption match {
 		case Some(oc) => {
 			<ul class="citeLinks_linksList">
-				<!-- 
 				{ CiteBinaryImageView.imageThumbItem(propVal, CiteBinaryImageModel.imgUseLocal.bind).bind }
-				-->
 				{ DataModelView.objectLinkItem(contextUrn, propVal).bind }
-				<!-- 
 				{ DataModelView.imageLinkItem(contextUrn, propVal).bind }
+				<!--
 				{ DataModelView.dseLinkItem(contextUrn, propVal).bind }
 				-->
 			</ul>
@@ -161,7 +159,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			}
 	}	
 
-	/*
 	@dom
 	def imageLinkItem(contextUrn:Option[Cite2Urn],propVal:Cite2Urn) = {
 		CiteBinaryImageController.implementedByImageCollObjects(propVal) match {
@@ -202,7 +199,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			}
 		}
 	}	
-	*/
 
 	/*
 	@dom
@@ -229,7 +225,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 	}
 	*/
 
-	/*
 	@dom
 	def iipDZLink(urn:Cite2Urn, uv:Vector[Cite2Urn], contextUrn:Option[Cite2Urn], roiObject:Option[Vector[ImageRoiModel.Roi]] = None) = {
 		CiteBinaryImageController.implementedByProtocol(uv,CiteBinaryImageModel.iiifApiProtocolString) match {
@@ -268,9 +263,8 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			}
 		}
 	}
-	*/
 
-	/*
+
 	@dom
 	def localDZLink(urn:Cite2Urn, uv:Vector[Cite2Urn], contextUrn:Option[Cite2Urn], roiObject:Option[Vector[ImageRoiModel.Roi]] = None) = {
 		CiteBinaryImageController.implementedByProtocol(uv,CiteBinaryImageModel.localDZProtocolString) match {
@@ -309,7 +303,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			}
 		}
 	}
-	*/
 
 	/*	
 	@dom

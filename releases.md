@@ -1,5 +1,7 @@
 # Release notes
 
+**1.2.0**: Images.
+
 **1.1.0**: Collection browsing and searching.
 
 **1.0.0**: All text functions working.

@@ -29,9 +29,9 @@ object DataModelController {
 	// Clear Data Models
 	def clearDataModels:Unit = {
 		DataModelModel.dataModels.value = None
-		//CiteBinaryImageModel.hasBinaryImages.value = false
-		//CiteBinaryImageModel.hasRemoteOption.value = false
-		//CiteBinaryImageModel.hasLocalOption.value = false
+		CiteBinaryImageModel.hasBinaryImages.value = false
+		CiteBinaryImageModel.hasRemoteOption.value = false
+		CiteBinaryImageModel.hasLocalOption.value = false
 	}
 
 	// Probably should be in CiteObj library?
@@ -162,7 +162,6 @@ object DataModelController {
 			CiteMainView.changeTab("object")
 	}
 
-/*
 	def viewImage(
 		contextUrn:Option[Cite2Urn], 
 		implementingObject:CiteObject, 
@@ -181,7 +180,6 @@ object DataModelController {
 			CiteBinaryImageController.changeUrn(contextUrn, urn, roiObj)
 			CiteMainView.changeTab("image")
 		}
-		*/
 
 
 }

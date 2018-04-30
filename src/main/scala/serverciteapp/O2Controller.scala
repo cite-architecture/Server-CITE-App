@@ -30,7 +30,6 @@ object O2Controller {
 	def changePassage: Unit = {
 		O2View.cursorWaiting
 		O2Model.getPrevNextUrn(O2Model.urn.value)
-		g.console.log(s"Doing changePassage with ${O2Model.urn.value}")
 		val newUrn: CtsUrn = O2Model.urn.value
 
 		val task = Task{ CiteMainQuery.getJson(O2Query.getLabelForUrnHistory, s"${O2Query.queryLabelForUrn}${newUrn}", urn = Some(newUrn)) }
