@@ -75,6 +75,8 @@ object ObjectModel {
 	val objectReport = Var("")
 
 	// for navigation
+	//      the prevOption and nextOption params are:
+	//		Urn, offset, limit
 	val prevOption:Option[Tuple3[Option[Cite2Urn],Int,Int]] = None
 	val nextOption:Option[Tuple3[Option[Cite2Urn],Int,Int]] = None
 	val currentPrev = Var(prevOption)

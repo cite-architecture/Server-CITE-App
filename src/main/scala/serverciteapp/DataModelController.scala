@@ -34,28 +34,36 @@ object DataModelController {
 		CiteBinaryImageModel.hasLocalOption.value = false
 	}
 
-	// Probably should be in CiteObj library?
-	// Given a collection URN and a property name, construct a property URN
-	def propertyUrnFromPropertyName(urn:Cite2Urn, propName:String):Cite2Urn = {
-		val returnUrn:Cite2Urn = {
-			urn.propertyOption match {
-				case Some(po) => urn // just return it!
-				case None => {
-					val collUrn:Cite2Urn = urn.dropSelector
-					val collUrnString:String = collUrn.toString.dropRight(1) // remove colon
-					urn.objectComponentOption match {
-						case Some(oc) => {
-							Cite2Urn(s"${collUrnString}.${propName}:${oc}")
-						}
-						case None => {
-							Cite2Urn(s"${collUrnString}.${propName}:")
-						}
-					}
-				}
-			}
-		}
-		returnUrn
-	}	
+ // Probably should be in CiteObj library?
+  // Given a collection URN and a property name, construct a property URN
+  def propertyUrnFromPropertyName(urn:Cite2Urn, propName:String):Cite2Urn = {
+    //println("\n\n-------")
+    //println(s"urn: ${urn}")
+    val returnUrn:Cite2Urn = {
+        val collUrn:Cite2Urn = {
+            urn.propertyOption match {
+            case Some(po) => {
+              urn.dropProperty.dropSelector
+            }
+            case None => {
+              urn.dropSelector
+            }
+          }
+        }
+        //println(s"collUrn: ${collUrn}")
+        val collUrnString:String = collUrn.toString.dropRight(1) // remove colon
+        urn.objectComponentOption match {
+        case Some(oc) => {
+          Cite2Urn(s"${collUrnString}.${propName}:${oc}")
+        }
+        case None => {
+          Cite2Urn(s"${collUrnString}.${propName}:")
+        }
+      }
+    }
+    //println(s"returnUrn: ${returnUrn}")
+    returnUrn
+  } 
 
 	// Checks to see if a text is present in the currently loaded library
 	// Will match with ~~ similarity

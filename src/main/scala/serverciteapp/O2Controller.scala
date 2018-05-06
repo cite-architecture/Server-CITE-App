@@ -31,7 +31,7 @@ object O2Controller {
 		O2View.cursorWaiting
 		O2Model.getPrevNextUrn(O2Model.urn.value)
 		val newUrn: CtsUrn = O2Model.urn.value
-
+		DSEModel.updateDsesForText(newUrn)
 		val task = Task{ CiteMainQuery.getJson(O2Query.getLabelForUrnHistory, s"${O2Query.queryLabelForUrn}${newUrn}", urn = Some(newUrn)) }
 		val future = task.runAsync	
 		O2Model.versionsForUrn(newUrn)

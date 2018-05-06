@@ -34,9 +34,7 @@ def objectLinks(contextUrn:Option[Cite2Urn], propVal:Cite2Urn) = {
 				{ CiteBinaryImageView.imageThumbItem(propVal, CiteBinaryImageModel.imgUseLocal.bind).bind }
 				{ DataModelView.objectLinkItem(contextUrn, propVal).bind }
 				{ DataModelView.imageLinkItem(contextUrn, propVal).bind }
-				<!--
 				{ DataModelView.dseLinkItem(contextUrn, propVal).bind }
-				-->
 			</ul>
 		}
 		case None => { 
@@ -200,30 +198,10 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 		}
 	}	
 
-	/*
 	@dom
 	def dseLinkItem(contextUrn:Option[Cite2Urn],propVal:Cite2Urn) = {
-		// First, see if this is a binary image
-		CiteBinaryImageController.implementedByImageCollObjects(propVal) match {
-			case Some(uv) => {
-				//Then, see if it is represented in DSE
-				val dseUrns:Option[Vector[Cite2Urn]] = DSEModel.implementedByDSE_image(propVal)
-				// If there is an existing ROI, add that to allRois
-				val allRois:Option[Vector[ImageRoiModel.Roi]] = {
-					val dseRois:Option[Vector[ImageRoiModel.Roi]] = DSEModel.roisForImage(propVal, contextUrn, dseUrns)
-					dseRois
-				}
-
-				<span class="citeLinks_linkSpan"> 
-					Data Mapped to:
-					{ DataModelView.iipDZLink(propVal.dropExtensions, uv, contextUrn, roiObject = allRois).bind }
-					{ DataModelView.localDZLink(propVal.dropExtensions, uv, contextUrn, roiObject = allRois).bind }
-				</span>
-			}
-			case None => { <!-- empty content --> }
-		}
+		<span class="citeLinks_linkSpan"> dse data here </span>
 	}
-	*/
 
 	@dom
 	def iipDZLink(urn:Cite2Urn, uv:Vector[Cite2Urn], contextUrn:Option[Cite2Urn], roiObject:Option[Vector[ImageRoiModel.Roi]] = None) = {

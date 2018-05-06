@@ -209,7 +209,6 @@ object O2Model {
 	def clearPassage:Unit = {
 		O2Model.versionsForCurrentUrn.value = 0
 		O2Model.currentListOfUrns.value.clear
-		//DSEModel.currentListOfDseUrns.value.clear
 		O2Model.currentCorpus.value.clear
 	}
 
