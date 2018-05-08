@@ -36,8 +36,8 @@ object QueryObjectQuery {
 		ObjectModel.limit.value = 5
 		val holdQuery:QueryObjectModel.CiteCollectionQuery = QueryObjectModel.currentQuery.value.get
 		holdQuery.numResults = vco.size
-	   QueryObjectModel.currentQuery.value =  None
-	   QueryObjectModel.currentQuery.value =  Some(holdQuery)
+	    QueryObjectModel.currentQuery.value =  None
+	    QueryObjectModel.currentQuery.value =  Some(holdQuery)
 		QueryObjectController.loadSearchResults(vco)
 		ObjectView.cursorNormal
 	}

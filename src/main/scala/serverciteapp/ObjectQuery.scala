@@ -33,6 +33,7 @@ object ObjectQuery {
 		- It sees if there is a CollectionRepository
 		- If so, it lets ObojectModel know
 		- It shows the Collection tab
+		- It updates the labelMap, which in turn preloads the first collection's first URN
 	*/
 	val queryCatalog:String = "/collections/"
 
@@ -53,8 +54,8 @@ object ObjectQuery {
 				}
 
 				CiteMainModel.showCollections.value = true
-				ObjectController.preloadUrn
 
+				ObjectModel.updateLabelMap
 				ObjectController.updateUserMessage(s"Updated collections repository with ${ObjectModel.collections.value.size} collections.",0)
 			}
 			case None => {
@@ -73,6 +74,7 @@ object ObjectQuery {
 		ol.size match {
 			case n if (n > 0) => {
 				ObjectModel.labelMap.value = Some(ol)
+				ObjectController.preloadUrn
 			}
 			case _ => {
 				ObjectModel.labelMap.value = None	
@@ -84,10 +86,6 @@ object ObjectQuery {
 	/* Also useful for getting the first object */
 
 	val queryPagedObjects:String = "/objects/paged/"
-
-	def getPagedObjects(jstring:String, urn:Option[Urn] = None):Unit = {
-		// If the current in-memory method proves untenable, we'll fill this out.
-	}
 
 	def doInsertFirstObjectUrn(jstring:String, urn:Option[Urn] = None):Unit = {
 		try {
@@ -109,21 +107,22 @@ object ObjectQuery {
 
 	val queryGetObjects:String = "/objects/"
 
-	def getBoundObjects(jstring:String, urn:Option[Urn] = None):Unit = {
+	def getObject(jstring:String, urn:Option[Urn] = None):Unit = {
 		try {
-			val vco:Vector[CiteObject] = objJson.vectorOfCiteObjects(jstring)
-			vco.size match {
-				case n if (n > 0) => {
-					ObjectModel.boundObjects.value.clear	
-				   vco.foreach( fc => {
-						ObjectModel.boundObjects.value += fc
-					})
-					ObjectController.setDisplay
-				}
-				case _ => {
-					ObjectModel.boundObjects.value.clear	
-				}
-			}
+			g.console.log(s"ObjectQuery.getObject ${urn.get} (not implemented)")
+			ObjectModel.collectionUrnCheck(urn.get.asInstanceOf[Cite2Urn])
+			ObjectView.cursorNormal
+		} catch {
+			case e:Exception => throw new Exception(s"ObjectQuery.getBoundObjects: ${e}")
+		}
+	}
+
+	val queryGetPaged:String = "/objects/paged/"
+
+	def getRangeOrCollection(jstring:String, urn:Option[Urn] = None):Unit = {
+		try {
+			g.console.log(s"ObjectQuery.getCollection ${urn.get} (not implemented)")
+			ObjectModel.collectionUrnCheck(urn.get.asInstanceOf[Cite2Urn])
 			ObjectView.cursorNormal
 		} catch {
 			case e:Exception => throw new Exception(s"ObjectQuery.getBoundObjects: ${e}")
@@ -159,6 +158,20 @@ object ObjectQuery {
 				}
 			}
 			ObjectView.cursorNormal
+		} catch {
+			case e:Exception => throw new Exception(s"ObjectQuery.getNextUrn: ${e}")
+		}
+	}
+
+	// Collections URNS 
+	val queryGetCollectionUrns:String = "/collections/reff/"
+
+	def getCollectionUrns(jstring:String, urn:Option[Urn]):Unit = {
+		try {
+			val vco:Vector[Cite2Urn] = objJson.vectorOfCite2Urns(jstring)
+			ObjectModel.boundCollectionUrns.value.clear
+			for (u <- vco) {ObjectModel.boundCollectionUrns.value += u }
+			ObjectModel.setOffsetToCurrentUrn(urn.get.asInstanceOf[Cite2Urn])
 		} catch {
 			case e:Exception => throw new Exception(s"ObjectQuery.getNextUrn: ${e}")
 		}

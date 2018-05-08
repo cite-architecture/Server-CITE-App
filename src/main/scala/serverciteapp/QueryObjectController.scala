@@ -401,7 +401,7 @@ object QueryObjectController {
 						if (ObjectModel.limit.value > ov.size){ ObjectModel.limit.value =  ov.size }
 						ObjectModel.offset.value =  1
 						ObjectModel.browsable.value =  true
-					  // display objects
+						// display objects
 						ObjectModel.clearObject
 						ObjectModel.offset.value =  1
 						if (ObjectModel.limit.value > ov.size){
