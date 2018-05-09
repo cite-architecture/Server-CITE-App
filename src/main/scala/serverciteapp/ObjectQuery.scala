@@ -109,8 +109,20 @@ object ObjectQuery {
 
 	def getObject(jstring:String, urn:Option[Urn] = None):Unit = {
 		try {
-			g.console.log(s"ObjectQuery.getObject ${urn.get} (not implemented)")
 			ObjectModel.collectionUrnCheck(urn.get.asInstanceOf[Cite2Urn])
+			val vco:Vector[CiteObject] = objJson.vectorOfCiteObjects(jstring)
+			vco.size match {
+				case n if (n > 0) => {
+					ObjectModel.boundObjects.value.clear	
+				   vco.foreach( fc => {
+						ObjectModel.boundObjects.value += fc
+					})
+					ObjectController.setDisplay
+				}
+				case _ => {
+					ObjectModel.boundObjects.value.clear	
+				}
+			}
 			ObjectView.cursorNormal
 		} catch {
 			case e:Exception => throw new Exception(s"ObjectQuery.getBoundObjects: ${e}")
@@ -121,8 +133,29 @@ object ObjectQuery {
 
 	def getRangeOrCollection(jstring:String, urn:Option[Urn] = None):Unit = {
 		try {
-			g.console.log(s"ObjectQuery.getCollection ${urn.get} (not implemented)")
+			val vco:Vector[CiteObject] = objJson.vectorOfCiteObjects(jstring)
+			val stats = objJson.statsForVectorOfCiteObjects(jstring)
+			stats match {
+				case Some(s) => {
+					ObjectModel.totalNumberOfObjects.value = s("total")
+				}
+				case None => {
+					throw new Exception(s"Did not get valid stats on request from server.")
+				}
+			}
 			ObjectModel.collectionUrnCheck(urn.get.asInstanceOf[Cite2Urn])
+			vco.size match {
+				case n if (n > 0) => {
+					ObjectModel.boundObjects.value.clear	
+				   vco.foreach( fc => {
+						ObjectModel.boundObjects.value += fc
+					})
+					ObjectController.setDisplay
+				}
+				case _ => {
+					ObjectModel.boundObjects.value.clear	
+				}
+			}
 			ObjectView.cursorNormal
 		} catch {
 			case e:Exception => throw new Exception(s"ObjectQuery.getBoundObjects: ${e}")

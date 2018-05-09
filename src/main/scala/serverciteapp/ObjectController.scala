@@ -96,15 +96,8 @@ object ObjectController {
 	def updateReport:Unit = {
 		val collUrn:Cite2Urn = ObjectModel.urn.value.get.dropSelector
 		val collLabel:String = ObjectModel.currentCatalog.value.get.collection(collUrn).get.collectionLabel
-		val n:Int = ObjectModel.boundDisplayObjects.value.size
-		val total:Int = {
-			ObjectModel.labelMap.value match {
-				case Some(lm) => {
-					lm.filterKeys(_ ~~ collUrn).size
-				}
-				case None => 0
-			}
-		}
+		val n:Int = ObjectModel.boundObjects.value.size
+		val total:Int = ObjectModel.totalNumberOfObjects.value
 		val report = s"Showing ${n} out of ${total} objects in collection: ${collLabel} [${collUrn}]."
 		ObjectModel.objectReport.value = report
 	}
@@ -130,14 +123,14 @@ object ObjectController {
 				ObjectModel.offset.value = oldOffset
 				ObjectModel.limit.value = oldLimit
 				targetId match {
-						case "object_browseOffset" => {
-							ObjectController.updateUserMessage(s"Offset value must be an integer. '${badMo}' is not an integer.", 2)
-							thisTarget.value =  ObjectModel.offset.value.toString
-						}
-						case "object_browseLimit" => {
-							ObjectController.updateUserMessage(s"Limit value must be an integer. '${badMo}' is not an integer.", 2)
-							thisTarget.value =  ObjectModel.limit.value.toString
-						}
+					case "object_browseOffset" => {
+						ObjectController.updateUserMessage(s"Offset value must be an integer. '${badMo}' is not an integer.", 2)
+						thisTarget.value =  ObjectModel.offset.value.toString
+					}
+					case "object_browseLimit" => {
+						ObjectController.updateUserMessage(s"Limit value must be an integer. '${badMo}' is not an integer.", 2)
+						thisTarget.value =  ObjectModel.limit.value.toString
+					}
 				}
 
 			}
@@ -189,17 +182,25 @@ object ObjectController {
 				ObjectModel.objectOrCollection.value match {
 					case "object" => {
 						u._1 match {
-							case Some(cu) => ObjectController.changeUrn(cu)
+							case Some(cu) => {
+								ObjectController.changeUrn(cu)
+							}
 							case _ => ObjectController.updateUserMessage("The URN for the previous object is None. This is an error. Please file an issue on GitHub.",2)
 						}
 					}
 					case "none" => {
 						ObjectController.updateUserMessage("There is no object. getPrev should not have been called",2)
 					}
+					case "search" => {
+						// Duplicate current Query with new offset and limit
+						val nq:QueryObjectModel.CiteCollectionQuery = QueryObjectModel.currentQuery.value.get.updatePosition(no, nl)
+						QueryObjectModel.currentQuery.value = Some(nq)
+						QueryObjectController.loadQuery(nq, no, nl)
+					}
 					case _ => {
 						ObjectModel.limit.value = nl
 						ObjectModel.offset.value = no
-						ObjectController.setDisplay
+						ObjectController.changeObject
 					}
 				}
 			}
@@ -218,18 +219,26 @@ object ObjectController {
 				ObjectModel.objectOrCollection.value match {
 					case "object" => {
 						u._1 match {
-							case Some(cu) => ObjectController.changeUrn(cu)
+							case Some(cu) => {
+								ObjectController.changeUrn(cu)
+							}
 							case _ => ObjectController.updateUserMessage("The URN for the next object is None. This is an error. Please file an issue on GitHub.",2)
 						}
 					}
 					case "none" => {
 						ObjectController.updateUserMessage("There is no object. getNext should not have been called. Please file an issue on GitHub.",2)
 					}
+					case "search" => {
+						// Duplicate current Query with new offset and limit
+						val nq:QueryObjectModel.CiteCollectionQuery = QueryObjectModel.currentQuery.value.get.updatePosition(no, nl)
+						QueryObjectModel.currentQuery.value = Some(nq)
+						QueryObjectController.loadQuery(nq, no, nl)
+					}
 					// range, search results, or paged collection
 					case _ => {
 						ObjectModel.limit.value = nl
 						ObjectModel.offset.value = no
-						ObjectController.setDisplay
+						ObjectController.changeObject
 					}
 				}
 			}
@@ -338,8 +347,60 @@ object ObjectController {
 	}
 
 	def setDisplay: Unit = {
+		val numObj:Int = ObjectModel.totalNumberOfObjects.value
+		val tLim:Int = ObjectModel.limit.value
+		val tOff:Int = ObjectModel.offset.value
+		val startIndex:Int = tOff - 1
+		val endIndex:Int = {
+			if ( (tOff + tLim - 1)  >= numObj ) {
+				(numObj - 1)
+			} else {
+				((tOff - 1) + (tLim - 1))
+			}
+		}
+		ObjectModel.objectOrCollection.value match {
+			case "object" => {
+				ObjectModel.boundDisplayObjects.value.clear
+				ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(ObjectModel.boundObjects.value(0))
+				ObjectModel.updatePrevNext
+				ObjectController.updateReport
+			}
+			case "search" => {
+				ObjectModel.boundDisplayObjects.value.clear
+				for (i <- ObjectModel.boundObjects.value){
+					ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(i)
+				}
+				ObjectModel.updatePrevNext
+			}
+			case _ => {
+				try {
+					ObjectModel.urn.value match {
+						case Some(cu) => {
+							val collUrn:Cite2Urn = cu.dropSelector
+							if (tOff > numObj){
+								ObjectController.updateUserMessage(s"There are ${numObj} objects in the requested ${ObjectModel.objectOrCollection.value}, so an offset of ${tOff} is invalid.",2)
+							} else {
+								ObjectModel.boundDisplayObjects.value.clear
+								for (i <- ObjectModel.boundObjects.value){
+									ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(i)
+								}
+								ObjectModel.updatePrevNext
+								ObjectController.updateReport
 
+							}
+						} 
+						case None => ObjectController.updateUserMessage(s"Value 'urn' for ObjectModel is not set: ${ObjectModel.urn.value}.",1)
+					}
+				} catch {
+					case e: Exception => {
+						ObjectController.updateUserMessage(s"Failed on setDisplay. ${e}",2 )
+					}
+
+				}
+			}
+		}
 	}
+
 
 // below is how you invoke a cofirmation dialog
 // val cc = window.confirm("Hi")

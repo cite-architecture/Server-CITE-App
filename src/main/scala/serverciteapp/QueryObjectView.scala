@@ -542,9 +542,19 @@ for (q <- QueryObjectModel.pastQueries) yield {
 def loadPreviousObjects = {
 for (u <- ObjectModel.objectHistory) yield {
 				<p onclick={ event: Event => {
-					ObjectController.changeUrn(u)	
+					ObjectModel.offset.value = u._2
+					ObjectModel.limit.value = u._3
+					ObjectController.changeUrn(u._1)	
 					}
-				}>{ u.toString }</p>
+				}>{ 
+
+					u._1.objectComponentOption match {
+						case Some(oc) => s"${u._1.toString}" 
+						case None => s"${u._1.toString}, offset=${u._2}, limit=${u._3}" 
+					}
+
+
+				 }</p>
 			}	
 }
 

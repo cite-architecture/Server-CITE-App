@@ -153,7 +153,6 @@ object CiteBinaryImageModel {
 	/* This starts the process of asynchronously building our
 	binary image CiteCollectionRepository. */
 	def initBinaryImageRepo:Unit = {
-		g.console.log(s"Starting initBinaryImageRepo")
 		// Get urn in more concise form
 		val biurn:Cite2Urn = CiteBinaryImageModel.binaryImageModelUrn	
 			// First we send off for collectionsForModel

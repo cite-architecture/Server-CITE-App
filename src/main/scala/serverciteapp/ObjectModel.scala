@@ -33,12 +33,11 @@ object ObjectModel {
     case class BoundDisplayObject(urn:Var[Cite2Urn], label:Var[String],props:Vars[BoundCiteProperty], prot:Vars[BoundCiteProtocol])
 
 	// Keeping track of the history of object-viewing
-	val objectHistory = Vars.empty[Cite2Urn]
+	val objectHistory = Vars.empty[(Cite2Urn, Int, Int)]
 
-	def updateHistory(u:Cite2Urn):Unit = {
-		if (ObjectModel.objectHistory.value.contains(u) == false)  {
-	    	ObjectModel.objectHistory.value += u
-		}		
+	// History item = URN, current offset, current limit
+	def updateHistory(u:Cite2Urn, o:Int, l:Int):Unit = {
+	    ObjectModel.objectHistory.value += Tuple3(u, o, l)
 	}
 	// Messages
 	var msgTimer:scala.scalajs.js.timers.SetTimeoutHandle = null
@@ -59,6 +58,7 @@ object ObjectModel {
 	val labelMap = Var[Option[scala.collection.immutable.Map[Cite2Urn,String]]](None)
 
     val boundCollectionUrns = Vars.empty[Cite2Urn]
+    val totalNumberOfObjects = Var(0)
 	val boundObjects = Vars.empty[CiteObject]
 	val boundDisplayObjects = Vars.empty[BoundDisplayObject]
 
@@ -69,11 +69,10 @@ object ObjectModel {
 	// For Display
 	val offset = Var(0)
 	val limit = Var(5)
+	val totalReturnedUrns = Var(0)
 	val showObjects = Var(false) // if true, show a whole object; false, URN+label
 	val browsable = Var(false)
 	val objectReport = Var("")
-	// Note the "justBrowsing" flag. We don't want to save every "prev" or "next" click in the History menu… only the first one and last one of a browsing session.
-	var justBrowsing:Boolean = false
 
 	// for navigation
 	//      the prevOption and nextOption params are:
@@ -98,7 +97,9 @@ object ObjectModel {
 		currentPrev.value = None
 		currentNext.value = None
 		objectReport.value = ""
-	offset.value = 0 
+		// We don't want to reset the offset, since it is useful when moving from
+		// an object to a collection
+		//offset.value = 0 
 	}
 
 	def updateCollections:Unit = {
@@ -146,10 +147,7 @@ object ObjectModel {
 	def getObjects(u:Cite2Urn):Unit = {
 		ObjectView.cursorWaiting
 		// Stash this in the history
-		if (ObjectModel.justBrowsing != true ) {
-			ObjectModel.updateHistory(u)	
-			ObjectModel.justBrowsing = true
-		} 
+		ObjectModel.updateHistory(u, ObjectModel.offset.value, ObjectModel.limit.value)	
 
 
 		if (u.isRange){
@@ -185,14 +183,12 @@ object ObjectModel {
 			case n if (n > 0) => {
 				val cu = ObjectModel.boundCollectionUrns.value
 				if (cu(0).dropSelector != collUrn) {
-					g.console.log(s"${cu(0)} != ${collUrn}: reloading boundCollectionUrns")
 					ObjectModel.loadNewCollectionUrns(u)
 				} else {
 					ObjectModel.setOffsetToCurrentUrn(u)
 				}
 			}
 			case _ => {
-				g.console.log(s"No boundCollectionUrns: reloading")
 				ObjectModel.loadNewCollectionUrns(u)
 			}
 		}	
@@ -207,8 +203,144 @@ object ObjectModel {
 	}
 
 	def setOffsetToCurrentUrn(u:Cite2Urn):Unit = {
-		g.console.log(s"Need to set offset for ${u}")
+		try {
+			val offsetUrn:Cite2Urn = {
+				if (u.isRange) {
+					val rangeStart:Cite2Urn = rangeToTuple(u)._1	
+					rangeStart
+				} else {
+					u
+				}
+			}
+			offsetUrn.objectComponentOption match {
+				case Some(oco) => {
+					val newOffset:Int = boundCollectionUrns.value.zipWithIndex.filter(_._1 == offsetUrn)(0)._2
+					ObjectModel.offset.value = newOffset
+				}
+				case None => // Do nothing
+			}
+		} catch {
+			case e:Exception => s"Could not find offset for ${u}."
+			ObjectController.updateUserMessage(s"Could not find offset for ${u}.",2)
+		}
 	}
+
+	def constructBoundDisplayObject(obj:CiteObject):BoundDisplayObject = {
+		try {
+		  val collUrn:Cite2Urn = obj.urn.dropSelector
+			val urn = Var(obj.urn)
+			val label = Var(obj.label)
+			val tempPropList = Vars.empty[BoundCiteProperty]
+			for (p <- obj.propertyList){
+					val tempU = Var(p.urn)
+					val tempV = Var(p.propertyValue.toString)
+					val tempT = Var(p.propertyDef.propertyType)
+					val tempP = BoundCiteProperty(tempU,tempT,tempV)
+					val props = Var(tempP)
+					tempPropList.value += tempP
+			}
+			val tempProtocolList = Vars.empty[BoundCiteProtocol]
+
+			val tempProt0 = Var(CiteMainModel.objectProtocol)
+			tempProtocolList.value += BoundCiteProtocol(tempProt0)
+			val tempBDO = BoundDisplayObject(urn,label,tempPropList,tempProtocolList)
+			tempBDO
+		} catch {
+			case e:Exception => throw new Exception(s"ObjectModel.constructBoundDisplayObject failed for ${obj}")
+		}
+	}
+
+	@dom
+	def updatePrevNext:Unit = {
+		ObjectView.cursorWaiting
+		ObjectModel.objectOrCollection.value match {
+			case "object" => {
+				if (isOrdered.value) {
+					val u:Option[Cite2Urn] = ObjectModel.urn.value
+					u match {
+						case Some(u) => {
+							val prevQuery:String = ObjectQuery.queryGetPrevUrn + u.toString
+							val nextQuery:String = ObjectQuery.queryGetNextUrn + u.toString
+				    		val taskPrev = Task{ CiteMainQuery.getJson(ObjectQuery.getPrevUrn, prevQuery, urn = Some(u)) }
+							val futurePrev = taskPrev.runAsync
+				    		val taskNext = Task{ CiteMainQuery.getJson(ObjectQuery.getNextUrn, nextQuery, urn = Some(u)) }
+							val futureNext = taskNext.runAsync
+						}
+						case None => {
+							currentPrev.value = None
+							currentNext.value = None
+						}
+					}
+				} else {
+					currentPrev.value = None
+					currentNext.value = None
+				}
+			}
+			case "none" => {
+					currentPrev.value = None
+					currentNext.value = None
+					ObjectView.cursorNormal
+			}
+			case "search" => {
+				val numC = totalNumberOfObjects.value
+				if(limit.value >= numC){
+					currentPrev.value = None
+					currentNext.value = None
+				} else {
+					if ((offset.value + limit.value) > numC){
+						currentNext.value = None
+					} else {
+						// get next
+						val o:Int = offset.value + limit.value
+						currentNext.value = Option(None,o,limit.value)
+					}
+					if (offset.value == 1 ){
+						currentPrev.value = None
+					} else {
+						// get prev
+						val o:Int = {
+							if ((offset.value - limit.value) > 0){
+								offset.value - limit.value
+							} else { 0 }
+						}
+						//val u:Cite2Urn = objects.get(o).urn
+						currentPrev.value = Option(None,o,limit.value)
+					}
+				}
+				ObjectView.cursorNormal
+			}
+			case _ => {
+				val numC = totalNumberOfObjects.value
+				if(limit.value >= numC){
+					currentPrev.value = None
+					currentNext.value = None
+					ObjectView.cursorNormal
+				} else {
+					if ((offset.value + limit.value) > numC){
+						currentNext.value = None
+					} else {
+						// get next
+						val o:Int = offset.value + limit.value
+						currentNext.value = Option(urn.value,o,limit.value)
+					}
+					if (offset.value == 0 ){
+						currentPrev.value = None
+					} else {
+						// get prev
+						val o:Int = {
+							if ((offset.value - limit.value) > 0){
+								offset.value - limit.value
+							} else { 0 }
+						}
+						//val u:Cite2Urn = objects.get(o).urn
+						currentPrev.value = Option(urn.value,o,limit.value)
+					}
+					ObjectView.cursorNormal
+				}
+			}
+		}
+	}
+	
 
 	/* This is how to pass data to the global JS scope */
 	/*
