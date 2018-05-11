@@ -96,13 +96,13 @@ def retrieveObjectButton = {
 				val s:String = js.Dynamic.global.document.getElementById("object_urnInput").value.toString
 				ObjectModel.urn.value = Some(Cite2Urn(s))
 				ObjectController.updateUserMessage("Retrieving object…",1)
-				val task = Task{ ObjectController.changeObject }
+				val task = Task{ ObjectController.changeUrn(Cite2Urn(s)) }
 				val future = task.runAsync
 			}
 			
 		}
 		disabled={
-					(ObjectModel.objectOrCollection.bind == "none")
+					((ObjectModel.objectOrCollection.bind == "none") || (ObjectModel.objectOrCollection.bind == "search"))
 				 }
 
 > {
@@ -303,7 +303,14 @@ def collectionBrowseControls = {
 				val currentOffset = ObjectModel.offset.value
 				ObjectController.validateNumericEntry( event )
 				if (ObjectModel.offset.value != currentOffset){
-					ObjectController.setDisplay
+					//ObjectController.setDisplay
+					ObjectModel.objectOrCollection.value match {
+						case "range" => ObjectController.changeObject
+						case "collection" => ObjectController.changeObject
+						case "search" => QueryObjectController.loadQuery(QueryObjectModel.currentQuery.value.get, offset = ObjectModel.offset.value, limit = ObjectModel.limit.value)
+						case _ => // do nothing
+					}
+					
 				}
 			}
 			}/>
@@ -313,7 +320,12 @@ def collectionBrowseControls = {
 				val currentLimit = ObjectModel.limit.value
 				ObjectController.validateNumericEntry( event )
 				if (ObjectModel.limit.value != currentLimit){
-					ObjectController.setDisplay
+					ObjectModel.objectOrCollection.value match {
+						case "range" => ObjectController.changeObject
+						case "collection" => ObjectController.changeObject
+						case "search" => QueryObjectController.loadQuery(QueryObjectModel.currentQuery.value.get, offset = ObjectModel.offset.value, limit = ObjectModel.limit.value)
+						case _ => // do nothing
+					}
 				}
 
 				}

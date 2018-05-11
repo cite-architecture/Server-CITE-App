@@ -64,6 +64,7 @@ object QueryObjectController {
 		// Clear URN field
 		js.Dynamic.global.document.getElementById("object_urnInput").value = ""
 		try {
+			ObjectModel.offset.value = QueryObjectModel.currentQueryOffset.value
 			QueryObjectModel.selectedPropertyType.value match {
 				case Some(StringType) => initStringSearch
 				case Some(NumericType) => initNumericSearch
@@ -81,7 +82,7 @@ object QueryObjectController {
 		}
 	}
 
-	def loadQuery(q:QueryObjectModel.CiteCollectionQuery):Unit = {
+	def loadQuery(q:QueryObjectModel.CiteCollectionQuery, offset:Int = ObjectModel.offset.value, limit:Int = ObjectModel.limit.value):Unit = {
 		QueryObjectModel.currentQuery.value =  Some(q)
 		QueryObjectModel.selectedPropertyType.value =  q.qPropertyType
 		QueryObjectModel.currentQueryCollection.value = q.qCollection
@@ -118,6 +119,9 @@ object QueryObjectController {
 		QueryObjectModel.currentCtsUrnQuery.value = q.qCtsUrn
 		QueryObjectModel.currentCite2UrnQuery.value = q.qCite2Urn
 		// ------
+		QueryObjectModel.currentQueryOffset.value = offset 
+		QueryObjectModel.currentQueryLimit.value = limit
+
 		initQuery
 	}
 
@@ -135,7 +139,9 @@ object QueryObjectController {
 			qPropertyType = QueryObjectModel.selectedPropertyType.value,
 			qSearchString = QueryObjectModel.currentSearchString.value,
 			qCaseSensitive = Some(QueryObjectModel.currentCaseSensitiveState.value),
-			qRegex = Some(QueryObjectModel.currentRegexState.value)
+			qRegex = Some(QueryObjectModel.currentRegexState.value),
+			qOffset =  QueryObjectModel.currentQueryOffset.value,
+			qLimit = QueryObjectModel.currentQueryLimit.value
 		)
 		doStringSearch(cq)
 	}
@@ -157,9 +163,9 @@ object QueryObjectController {
 	   }
 		val queryString:String = {
 			if (cq.qRegex.get) {
-				s"/objects/find/regexmatch${collString}?find=${cq.qSearchString.get}${propString}"
+				s"/objects/find/regexmatch${collString}?find=${cq.qSearchString.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 			} else {
-				s"/objects/find/stringcontains${collString}?find=${cq.qSearchString.get}${propString}"
+				s"/objects/find/stringcontains${collString}?find=${cq.qSearchString.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 			}
 		}
 		//g.console.log(queryString)
@@ -180,7 +186,9 @@ object QueryObjectController {
 			qPropertyType = QueryObjectModel.selectedPropertyType.value,
 			qNum1 = QueryObjectModel.currentNumericQuery1.value,
 			qNum2 = QueryObjectModel.currentNumericQuery2.value,
-			qNumOperator = Some(QueryObjectModel.currentNumericOperator.value)
+			qNumOperator = Some(QueryObjectModel.currentNumericOperator.value),
+			qOffset =  QueryObjectModel.currentQueryOffset.value,
+			qLimit = QueryObjectModel.currentQueryLimit.value
 		)
 		doNumericSearch(cq)
 	}
@@ -203,22 +211,22 @@ object QueryObjectController {
 	   val queryString:String = {
 			cq.qNumOperator.get match {
 				case "eq" => {
-					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 				}
 				case "lt" => {
-					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 				}
 				case "gt" => {
-					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 				}
 				case "lteq" => {
-					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 				}
 				case "gteq" => {
-					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}"
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&op=${cq.qNumOperator.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 				}
 				case "inRange" => {
-					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&n2=${cq.qNum2.get}&op=within${propString}"
+					s"/objects/find/numeric${collString}?n1=${cq.qNum1.get}&n2=${cq.qNum2.get}&op=within${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 				}
 				case _ @ op => {
 					ObjectController.updateUserMessage(s"Unrecognized numeric operator: ${op}.",2)
@@ -242,7 +250,9 @@ object QueryObjectController {
 			qCollection = collUrn,
 			qProperty = QueryObjectModel.queryProperty.value,
 			qPropertyType = QueryObjectModel.selectedPropertyType.value,
-			qControlledVocabItem = QueryObjectModel.currentControlledVocabItem.value
+			qControlledVocabItem = QueryObjectModel.currentControlledVocabItem.value,
+			qOffset =  QueryObjectModel.currentQueryOffset.value,
+			qLimit = QueryObjectModel.currentQueryLimit.value
 		)
 		doContVocabSearch(cq)
 	}
@@ -263,7 +273,7 @@ object QueryObjectController {
 	   	}
 	   }
 	   val queryString:String = {
-	   	s"/objects/find/regexmatch${collString}?find=${cq.qControlledVocabItem.get}${propString}"	
+	   	s"/objects/find/regexmatch${collString}?find=${cq.qControlledVocabItem.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"	
 		}
 		//g.console.log(queryString)
 		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
@@ -281,7 +291,9 @@ object QueryObjectController {
 			qCollection = collUrn,
 			qProperty = QueryObjectModel.queryProperty.value,
 			qPropertyType = QueryObjectModel.selectedPropertyType.value,
-			qBoolVal = Some(QueryObjectModel.currentBooleanVal.value)
+			qBoolVal = Some(QueryObjectModel.currentBooleanVal.value),
+			qOffset =  QueryObjectModel.currentQueryOffset.value,
+			qLimit = QueryObjectModel.currentQueryLimit.value
 		)
 		doBooleanSearch(cq)
 	}
@@ -302,7 +314,7 @@ object QueryObjectController {
 	   	}
 	   }
 	   val queryString:String = {
-	   	s"/objects/find/valueequals${collString}?value=${cq.qBoolVal.get}&type=boolean${propString}"	
+	   	s"/objects/find/valueequals${collString}?value=${cq.qBoolVal.get}&type=boolean${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"	
 	   }
 		//g.console.log(queryString)
 		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
@@ -320,7 +332,9 @@ object QueryObjectController {
 			qCollection = collUrn,
 			qProperty = QueryObjectModel.queryProperty.value,
 			qPropertyType = QueryObjectModel.selectedPropertyType.value,
-			qCtsUrn = QueryObjectModel.currentCtsUrnQuery.value
+			qCtsUrn = QueryObjectModel.currentCtsUrnQuery.value,
+			qOffset =  QueryObjectModel.currentQueryOffset.value,
+			qLimit = QueryObjectModel.currentQueryLimit.value
 		)
 		doCtsUrnSearch(cq)
 	}
@@ -341,7 +355,7 @@ object QueryObjectController {
 	   	}
 	   }
 	   val queryString:String = {
-	   	s"/objects/find/urnmatch${collString}?find=${cq.qCtsUrn.get}${propString}"
+	   	s"/objects/find/urnmatch${collString}?find=${cq.qCtsUrn.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 	   }	
 		//g.console.log(queryString)
 		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
@@ -359,7 +373,9 @@ object QueryObjectController {
 			qCollection = collUrn,
 			qProperty = QueryObjectModel.queryProperty.value,
 			qPropertyType = QueryObjectModel.selectedPropertyType.value,
-			qCite2Urn =  QueryObjectModel.currentCite2UrnQuery.value
+			qCite2Urn =  QueryObjectModel.currentCite2UrnQuery.value,
+			qOffset =  QueryObjectModel.currentQueryOffset.value,
+			qLimit = QueryObjectModel.currentQueryLimit.value
 		)
 		doCite2UrnSearch(cq)
 	}
@@ -380,7 +396,7 @@ object QueryObjectController {
 	   	}
 	   }
 	   val queryString:String = {
-	   	s"/objects/find/urnmatch${collString}?find=${cq.qCite2Urn.get}${propString}"
+	   	s"/objects/find/urnmatch${collString}?find=${cq.qCite2Urn.get}${propString}&offset=${ObjectModel.offset.value}&limit=${ObjectModel.limit.value}"
 	   }	
 		//g.console.log(queryString)
 		val task = Task{ CiteMainQuery.getJson(QueryObjectQuery.doQuery, queryString, urn = None) }
@@ -388,37 +404,28 @@ object QueryObjectController {
 	}
 
 	def loadSearchResults(ov:Vector[CiteObject]):Unit = {
-				//cq.numResults = ov.size
-				if (ov.size > 0 ){
-						ov.size match {
-							case 1 => ObjectController.updateUserMessage(s"Search found ${ov.size} matching object.",0)
-							case _ => ObjectController.updateUserMessage(s"Search found ${ov.size} matching objects.",0)
-						}
-						ObjectModel.clearObject
-						//QueryObjectModel.currentQuery.value =  Some(cq)
-						addToSearchHistory(QueryObjectModel.currentQuery.value.get)
-						ObjectModel.objectOrCollection.value =  "search"
-						if (ObjectModel.limit.value > ov.size){ ObjectModel.limit.value =  ov.size }
-						ObjectModel.offset.value =  1
-						ObjectModel.browsable.value =  true
-					  // display objects
-						ObjectModel.clearObject
-						ObjectModel.offset.value =  1
-						if (ObjectModel.limit.value > ov.size){
-							ObjectModel.limit.value =  ov.size
-						}
-						ObjectModel.browsable.value =  true
-						ObjectModel.objectOrCollection.value =  "search"
-						for (o <- ov ){
-							ObjectModel.boundObjects.value += o
-						}
-						ObjectController.setDisplay
-				} else {
-						ObjectModel.clearObject
-						//QueryObjectModel.currentQuery.value =  Some(cq)
-						ObjectController.updateUserMessage("Search found no matching objects.",1)
-				}
-
+		//cq.numResults = ov.size
+		if (ObjectModel.totalNumberOfObjects.value > 0 ){
+			ObjectModel.totalNumberOfObjects.value match {
+				case 1 => ObjectController.updateUserMessage(s"Search found ${ov.size} matching object.",0)
+				case _ => ObjectController.updateUserMessage(s"Search found ${ov.size} matching objects.",0)
+			}
+			QueryObjectModel.currentQuery.value match {
+				case Some(cq) => addToSearchHistory(cq)
+				case None => 
+			}
+			ObjectModel.clearObject
+			ObjectModel.browsable.value =  true
+			ObjectModel.objectOrCollection.value =  "search"
+			for (o <- ov ){
+				ObjectModel.boundObjects.value += o
+			}
+			ObjectController.setDisplay
+		} else {
+			ObjectModel.clearObject
+			//QueryObjectModel.currentQuery.value =  Some(cq)
+			ObjectController.updateUserMessage("Search found no matching objects.",1)
+		}
 	}
 
 	def addToSearchHistory(cq:QueryObjectModel.CiteCollectionQuery):Unit = {

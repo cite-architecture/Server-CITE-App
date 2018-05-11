@@ -106,7 +106,6 @@ object CiteMainController {
 			// Collection Repository Stuff
 			ObjectModel.updateCollections // which hands off to ObjectQuery.updateCatalog
 			// ObjectQuery.updateCatalog, in turn, takes care of activating the "Collections" tab.
-			ObjectModel.updateLabelMap
 
 
 

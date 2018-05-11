@@ -24,21 +24,6 @@ import scala.scalajs.js.annotation.JSExport
 @JSExportTopLevel("serverciteapp.ObjectController")
 object ObjectController {
 
-
-	// Based on the UI toggle, sets showObject.
-	//     true -> show each object and all its properties
-	//     false -> show URN and label only
-	@dom
-	def switchDisplay(thisEvent: Event):Unit = {
-		ObjectView.cursorWaiting
-		val before = ObjectModel.showObjects.value
-		val showObjectsStr:String = js.Dynamic.global.document.getElementById("object_browseOrListSwitch").checked.toString
-		ObjectModel.showObjects.value = (showObjectsStr == "true")
-		ObjectController.setDisplay
-		ObjectView.cursorNormal
-	}
-
-
 	def objectIsPresent(u:Cite2Urn):Boolean = {
 		val tempU:Cite2Urn = u.dropExtensions
 		ObjectModel.labelMap.value match {
@@ -108,48 +93,168 @@ object ObjectController {
 		}
 	}
 
-  // The sequence goes like this:
-	//    - [getPrev or getNext]
-	//    - changeUrn
-	//    - changeObject
-	def changeObject:Unit = {
-		if (ObjectModel.hasCollections.value) {
-			val tempUrn:Cite2Urn = ObjectModel.urn.value.get
-			ObjectModel.clearObject
-			QueryObjectModel.clearAll
-			ObjectModel.urn.value = Some(tempUrn)
-			val collUrn = ObjectModel.urn.value.get.dropSelector
+	def updateReport:Unit = {
+		val collUrn:Cite2Urn = ObjectModel.urn.value.get.dropSelector
+		val collLabel:String = ObjectModel.currentCatalog.value.get.collection(collUrn).get.collectionLabel
+		val n:Int = ObjectModel.boundObjects.value.size
+		val total:Int = ObjectModel.totalNumberOfObjects.value
+		val report = s"Showing ${n} out of ${total} objects in collection: ${collLabel} [${collUrn}]."
+		ObjectModel.objectReport.value = report
+	}
 
-			// Based on the new URN, set image, ordered, browsable flags
-			ObjectModel.isOrdered.value = ObjectModel.currentCatalog.value.get.isOrdered(collUrn)
 
-			if (
-					(ObjectModel.objectOrCollection.value == "collection") ||
-					(ObjectModel.urn.value.get.isRange == true) ||
-					(ObjectModel.isOrdered.value == true) ||
-					(ObjectModel.urn.value.get.objectOption == None)
-				){
-				  	ObjectModel.browsable.value = true
-				} else { ObjectModel.browsable.value = false }
-
-				ObjectModel.objectOrCollection.value match {
-						case "object" => {
-							ObjectModel.getObjects(tempUrn)
-						}
-						case "collection" =>{
-							ObjectModel.getObjects(tempUrn)
-						}
-						case "range" =>{
-							ObjectModel.getObjects(tempUrn)
-						}
-						case _ => {
-						}
+	/* I don't know how to do anything equivalent to "this" when passing events
+	in ScalaJS. So this will cover all numeric fields. */
+	def validateNumericEntry(thisEvent: Event):Unit = {
+		val oldOffset:Int = ObjectModel.offset.value
+		val oldLimit:Int = ObjectModel.limit.value
+		val thisTarget = thisEvent.target.asInstanceOf[org.scalajs.dom.raw.HTMLInputElement]
+		val targetId = thisTarget.id
+		val testText = thisTarget.value.toString
+		try{
+			val mo: Int = testText.toInt
+			targetId match {
+				case "object_browseOffset" => ObjectModel.offset.value = mo
+				case "object_browseLimit" => ObjectModel.limit.value = mo
+			}
+		} catch {
+			case e: Exception => {
+				val badMo: String = testText
+				ObjectModel.offset.value = oldOffset
+				ObjectModel.limit.value = oldLimit
+				targetId match {
+					case "object_browseOffset" => {
+						ObjectController.updateUserMessage(s"Offset value must be an integer. '${badMo}' is not an integer.", 2)
+						thisTarget.value =  ObjectModel.offset.value.toString
+					}
+					case "object_browseLimit" => {
+						ObjectController.updateUserMessage(s"Limit value must be an integer. '${badMo}' is not an integer.", 2)
+						thisTarget.value =  ObjectModel.limit.value.toString
+					}
 				}
+
+			}
 		}
 	}
 
-	def changeUrn(urnString: String): Unit = {
-		changeUrn(Cite2Urn(urnString))
+	def preloadUrn:Unit = {
+		// get first collection in catalog
+		if (
+			(ObjectModel.collections.value.size > 0) &
+			(ObjectModel.labelMap.value != None )
+		){
+			val collUrn = ObjectModel.collections.value(0).urn
+			insertFirstObjectUrn(collUrn)
+		} else {
+
+		}
+	}
+
+	def insertFirstObjectUrn(urn: Cite2Urn): Unit = {
+		ObjectView.cursorWaiting
+		val offset:Int = 0
+		val limit:Int = 1
+		val qs:String = s"${ObjectQuery.queryPagedObjects}${urn}?offset=${offset}&limit=${limit}"
+		val task = Task{ CiteMainQuery.getJson(ObjectQuery.doInsertFirstObjectUrn, qs, urn = Some(urn)) }
+		val future = task.runAsync
+	}
+
+	// Based on the UI toggle, sets showObject.
+	//     true -> show each object and all its properties
+	//     false -> show URN and label only
+	@dom
+	def switchDisplay(thisEvent: Event):Unit = {
+		ObjectView.cursorWaiting
+		val before = ObjectModel.showObjects.value
+		val showObjectsStr:String = js.Dynamic.global.document.getElementById("object_browseOrListSwitch").checked.toString
+		ObjectModel.showObjects.value = (showObjectsStr == "true")
+		ObjectController.setDisplay
+		ObjectView.cursorNormal
+	}
+
+
+	@dom
+	def getPrev:Unit = {
+		ObjectModel.currentPrev.value match {
+			case Some(u) => {
+				val no:Int = u._2
+				val nl:Int = u._3
+				ObjectModel.objectOrCollection.value match {
+					case "object" => {
+						u._1 match {
+							case Some(cu) => {
+								ObjectController.changeUrn(cu)
+							}
+							case _ => ObjectController.updateUserMessage("The URN for the previous object is None. This is an error. Please file an issue on GitHub.",2)
+						}
+					}
+					case "none" => {
+						ObjectController.updateUserMessage("There is no object. getPrev should not have been called",2)
+					}
+					case "search" => {
+						// Duplicate current Query with new offset and limit
+						val nq:QueryObjectModel.CiteCollectionQuery = QueryObjectModel.currentQuery.value.get.updatePosition(no, nl)
+						QueryObjectModel.currentQuery.value = Some(nq)
+						QueryObjectController.loadQuery(nq, no, nl)
+					}
+					case _ => {
+						ObjectModel.limit.value = nl
+						ObjectModel.offset.value = no
+						ObjectController.changeObject
+					}
+				}
+			}
+			case _ => {
+					ObjectController.updateUserMessage("There is no previous object. getPrev should not have been called",2)
+			}
+		}
+	}
+	
+	@dom
+	def getNext:Unit = {
+		ObjectModel.currentNext.value match {
+			case Some(u) => {
+				val no:Int = u._2
+				val nl:Int = u._3
+				ObjectModel.objectOrCollection.value match {
+					case "object" => {
+						u._1 match {
+							case Some(cu) => {
+								ObjectController.changeUrn(cu)
+							}
+							case _ => ObjectController.updateUserMessage("The URN for the next object is None. This is an error. Please file an issue on GitHub.",2)
+						}
+					}
+					case "none" => {
+						ObjectController.updateUserMessage("There is no object. getNext should not have been called. Please file an issue on GitHub.",2)
+					}
+					case "search" => {
+						// Duplicate current Query with new offset and limit
+						val nq:QueryObjectModel.CiteCollectionQuery = QueryObjectModel.currentQuery.value.get.updatePosition(no, nl)
+						QueryObjectModel.currentQuery.value = Some(nq)
+						QueryObjectController.loadQuery(nq, no, nl)
+					}
+					// range, search results, or paged collection
+					case _ => {
+						ObjectModel.limit.value = nl
+						ObjectModel.offset.value = no
+						ObjectController.changeObject
+					}
+				}
+			}
+			case _ => {
+					ObjectController.updateUserMessage("There is no next object. getNext should not have been called. Please file an issue on GitHub.",2)
+			}
+		}
+	}
+
+	def changeUrn(urnStr:String): Unit = {
+		try {
+			val u:Cite2Urn = Cite2Urn(urnStr)
+			changeUrn(u)
+		} catch {
+			case e:Exception => throw new Exception(s"${urnStr} is not a valid Cite2 Urn.")
+		}
 	}
 
 	def changeUrn(urn: Cite2Urn): Unit = {
@@ -165,6 +270,7 @@ object ObjectController {
 							case Some(rb) => {
 								ObjectModel.urn.value.get.rangeEndOption match {
 									case Some(re) => {
+										ObjectModel.offset.value = 0
 										ObjectModel.objectOrCollection.value = "range"
 										ObjectModel.isOrdered.value = ObjectModel.currentCatalog.value.get.isOrdered(collUrn)
 										ObjectController.updateUserMessage("Retrieving range…",1)
@@ -204,105 +310,48 @@ object ObjectController {
 		}
 	}
 
-	def preloadUrn:Unit = {
-			// get first collection in catalog
+	// This hands off to ObjectModel.getObjects
+	def changeObject:Unit = {
+		if (ObjectModel.hasCollections.value) {
+			val tempUrn:Cite2Urn = ObjectModel.urn.value.get
+			ObjectModel.clearObject
+			QueryObjectModel.clearAll
+			ObjectModel.urn.value = Some(tempUrn)
+			val collUrn = ObjectModel.urn.value.get.dropSelector
+
+			// Based on the new URN, set image, ordered, browsable flags
+			ObjectModel.isOrdered.value = ObjectModel.currentCatalog.value.get.isOrdered(collUrn)
+
 			if (
-				(ObjectModel.collections.value.size > 0) &
-				(ObjectModel.labelMap.value != None )
-			){
-					val collUrn = ObjectModel.collections.value(0).urn
-					insertFirstObjectUrn(collUrn)
-			} else {
+					(ObjectModel.objectOrCollection.value == "collection") ||
+					(ObjectModel.urn.value.get.isRange == true) ||
+					(ObjectModel.isOrdered.value == true) ||
+					(ObjectModel.urn.value.get.objectOption == None)
+				){
+				  	ObjectModel.browsable.value = true
+				} else { ObjectModel.browsable.value = false }
 
-			}
-	}
-
-	@dom
-	def clearResults = {
-			//g.console.log("Clearing results")
-	}
-
-
-	@dom
-	def clearHistory = {
-			//g.console.log("Clearing history")
-	}
-
-	def insertFirstObjectUrn(urn: Cite2Urn): Unit = {
-		ObjectView.cursorWaiting
-		val offset:Int = 0
-		val limit:Int = 1
-		val qs:String = s"${ObjectQuery.queryPagedObjects}${urn}?offset=${offset}&limit=${limit}"
-
-		val task = Task{ CiteMainQuery.getJson(ObjectQuery.doInsertFirstObjectUrn, qs, urn = Some(urn)) }
-		val future = task.runAsync
-	}
-
-	@dom
-	def getNext:Unit = {
-		ObjectModel.currentNext.value match {
-			case Some(u) => {
-				val no:Int = u._2
-				val nl:Int = u._3
 				ObjectModel.objectOrCollection.value match {
-					case "object" => {
-						u._1 match {
-							case Some(cu) => ObjectController.changeUrn(cu)
-							case _ => ObjectController.updateUserMessage("The URN for the next object is None. This is an error. Please file an issue on GitHub.",2)
+						case "object" => {
+							ObjectModel.getObjects(tempUrn)
 						}
-					}
-					case "none" => {
-						ObjectController.updateUserMessage("There is no object. getNext should not have been called. Please file an issue on GitHub.",2)
-					}
-					// range, search results, or paged collection
-					case _ => {
-						ObjectModel.limit.value = nl
-						ObjectModel.offset.value = no
-						ObjectController.setDisplay
-					}
+						case "collection" =>{
+							ObjectModel.getObjects(tempUrn)
+						}
+						case "range" =>{
+							ObjectModel.getObjects(tempUrn)
+						}
+						case _ => {
+						}
 				}
-			}
-			case _ => {
-					ObjectController.updateUserMessage("There is no next object. getNext should not have been called. Please file an issue on GitHub.",2)
-			}
 		}
 	}
 
-	@dom
-	def getPrev:Unit = {
-		ObjectModel.currentPrev.value match {
-			case Some(u) => {
-				val no:Int = u._2
-				val nl:Int = u._3
-				ObjectModel.objectOrCollection.value match {
-					case "object" => {
-						u._1 match {
-							case Some(cu) => ObjectController.changeUrn(cu)
-							case _ => ObjectController.updateUserMessage("The URN for the previous object is None. This is an error. Please file an issue on GitHub.",2)
-						}
-					}
-					case "none" => {
-						ObjectController.updateUserMessage("There is no object. getPrev should not have been called",2)
-					}
-					case _ => {
-						ObjectModel.limit.value = nl
-						ObjectModel.offset.value = no
-						ObjectController.setDisplay
-					}
-				}
-			}
-			case _ => {
-					ObjectController.updateUserMessage("There is no previous object. getPrev should not have been called",2)
-			}
-		}
-	}
-
-	// Sets the display to a [possible] subset of the current objects
-	@dom
-	def setDisplay:Unit = {
-		val numObj:Int = ObjectModel.boundObjects.value.size
+	def setDisplay: Unit = {
+		val numObj:Int = ObjectModel.totalNumberOfObjects.value
 		val tLim:Int = ObjectModel.limit.value
 		val tOff:Int = ObjectModel.offset.value
+		/*
 		val startIndex:Int = tOff - 1
 		val endIndex:Int = {
 			if ( (tOff + tLim - 1)  >= numObj ) {
@@ -311,40 +360,35 @@ object ObjectController {
 				((tOff - 1) + (tLim - 1))
 			}
 		}
+		*/
 		ObjectModel.objectOrCollection.value match {
 			case "object" => {
 				ObjectModel.boundDisplayObjects.value.clear
-				// Here we need to send off to construct displayObjects that are bound
 				ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(ObjectModel.boundObjects.value(0))
-
 				ObjectModel.updatePrevNext
 				ObjectController.updateReport
 			}
 			case "search" => {
-							ObjectModel.boundDisplayObjects.value.clear
-							for (i <- startIndex to endIndex){
-									ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(ObjectModel.boundObjects.value(i))
-								}
-								ObjectModel.updatePrevNext
+				ObjectModel.boundDisplayObjects.value.clear
+				for (i <- ObjectModel.boundObjects.value){
+					ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(i)
+				}
+				ObjectModel.updatePrevNext
 			}
 			case _ => {
-				// 
 				try {
-							ObjectModel.urn.value match {
-								case Some(cu) => {
-									val collUrn:Cite2Urn = cu.dropSelector
-									if (tOff > numObj){
-										ObjectController.updateUserMessage(s"There are ${numObj} objects in the requested ${ObjectModel.objectOrCollection.value}, so an offset of ${tOff} is invalid.",2)
-									} else {
-										ObjectModel.boundDisplayObjects.value.clear
-										for (i <- startIndex to endIndex){
-											ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(ObjectModel.boundObjects.value(i))
-										}
-										ObjectModel.updatePrevNext
-									}
-								} 
-								case None => ObjectController.updateUserMessage(s"Value 'urn' for ObjectModel is not set: ${ObjectModel.urn.value}.",1)
+					ObjectModel.urn.value match {
+						case Some(cu) => {
+							val collUrn:Cite2Urn = cu.dropSelector
+							ObjectModel.boundDisplayObjects.value.clear
+							for (i <- ObjectModel.boundObjects.value){
+								ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(i)
 							}
+							ObjectModel.updatePrevNext
+							ObjectController.updateReport
+						} 
+						case None => ObjectController.updateUserMessage(s"Value 'urn' for ObjectModel is not set: ${ObjectModel.urn.value}.",1)
+					}
 				} catch {
 					case e: Exception => {
 						ObjectController.updateUserMessage(s"Failed on setDisplay. ${e}",2 )
@@ -355,56 +399,6 @@ object ObjectController {
 		}
 	}
 
-	def updateReport:Unit = {
-		val collUrn:Cite2Urn = ObjectModel.urn.value.get.dropSelector
-		val collLabel:String = ObjectModel.currentCatalog.value.get.collection(collUrn).get.collectionLabel
-		val n:Int = ObjectModel.boundDisplayObjects.value.size
-		val total:Int = {
-			ObjectModel.labelMap.value match {
-				case Some(lm) => {
-					lm.filterKeys(_ ~~ collUrn).size
-				}
-				case None => 0
-			}
-		}
-		val report = s"Showing ${n} out of ${total} objects in collection: ${collLabel} [${collUrn}]."
-		ObjectModel.objectReport.value = report
-	}
-
-
-	/* I don't know how to do anything equivalent to "this" when passing events
-	in ScalaJS. So this will cover all numeric fields. */
-	def validateNumericEntry(thisEvent: Event):Unit = {
-		val oldOffset:Int = ObjectModel.offset.value
-		val oldLimit:Int = ObjectModel.limit.value
-		val thisTarget = thisEvent.target.asInstanceOf[org.scalajs.dom.raw.HTMLInputElement]
-		val targetId = thisTarget.id
-		val testText = thisTarget.value.toString
-		try{
-			val mo: Int = testText.toInt
-			targetId match {
-				case "object_browseOffset" => ObjectModel.offset.value = mo
-				case "object_browseLimit" => ObjectModel.limit.value = mo
-			}
-		} catch {
-			case e: Exception => {
-				val badMo: String = testText
-				ObjectModel.offset.value = oldOffset
-				ObjectModel.limit.value = oldLimit
-				targetId match {
-						case "object_browseOffset" => {
-							ObjectController.updateUserMessage(s"Offset value must be an integer. '${badMo}' is not an integer.", 2)
-							thisTarget.value =  ObjectModel.offset.value.toString
-						}
-						case "object_browseLimit" => {
-							ObjectController.updateUserMessage(s"Limit value must be an integer. '${badMo}' is not an integer.", 2)
-							thisTarget.value =  ObjectModel.limit.value.toString
-						}
-				}
-
-			}
-		}
-	}
 
 // below is how you invoke a cofirmation dialog
 // val cc = window.confirm("Hi")

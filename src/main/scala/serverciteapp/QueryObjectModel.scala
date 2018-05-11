@@ -44,6 +44,9 @@ object QueryObjectModel {
 	val currentCtsUrnQuery = Var[Option[CtsUrn]](None)
 	val currentCite2UrnQuery = Var[Option[Cite2Urn]](None)
 
+	val currentQueryOffset = Var(0)
+	val currentQueryLimit = Var(5)
+
 	def clearAll = {
 		currentQuery.value =  None
 		isValidSearch.value =  false
@@ -59,7 +62,9 @@ object QueryObjectModel {
 		currentNumericQuery2.value =  None
 		currentBooleanVal.value =  true
 		currentCtsUrnQuery.value =  None
-	  currentCite2UrnQuery.value =  None
+		currentCite2UrnQuery.value =  None
+		currentQueryOffset.value = 0
+		currentQueryLimit.value = ObjectModel.limit.value
 	}
 
 	case class CiteCollectionQuery(
@@ -75,8 +80,30 @@ object QueryObjectModel {
 		val qNumOperator: Option[String] = None,
 		val qBoolVal: Option[Boolean] = None,
 		val qCtsUrn: Option[CtsUrn] = None,
-		val qCite2Urn: Option[Cite2Urn] = None
+		val qCite2Urn: Option[Cite2Urn] = None,
+		val qOffset: Int = 0,
+		val qLimit: Int = 5
 	) {
+
+		def updatePosition(offset:Int, limit:Int):CiteCollectionQuery = {
+			CiteCollectionQuery(
+				this.qCollection,
+				this.qProperty,
+				this.qPropertyType,
+				this.qControlledVocabItem,
+				this.qSearchString,
+				this.qRegex,
+				this.qCaseSensitive,
+				this.qNum1,
+				this.qNum2,
+				this.qNumOperator,
+				this.qBoolVal,
+				this.qCtsUrn,
+				this.qCite2Urn,
+				offset,
+				limit
+			)
+		}
 
 		var numResults:Int = 0
 
@@ -137,6 +164,8 @@ object QueryObjectModel {
 				}
 				case _ => qds += ""
 			}
+
+			qds += s"Offset=${qOffset}; Limit=${qLimit}. "
 			qds += s" (${numResults} Objects)"
 			qds
 		}

@@ -32,12 +32,19 @@ object QueryObjectQuery {
 	@dom
 	def doQuery(jstring:String, urn:Option[Urn] = None):Unit = {
 		val vco:Vector[CiteObject] = objJson.vectorOfCiteObjects(jstring)
-		ObjectModel.offset.value = 1
-		ObjectModel.limit.value = 5
+		val stats = objJson.statsForVectorOfCiteObjects(jstring)
+		stats match {
+			case Some(s) => {
+				ObjectModel.totalNumberOfObjects.value = s("total")
+			}
+			case None => {
+				throw new Exception(s"Did not get valid stats on request from server.")
+			}
+		}
 		val holdQuery:QueryObjectModel.CiteCollectionQuery = QueryObjectModel.currentQuery.value.get
-		holdQuery.numResults = vco.size
-	   QueryObjectModel.currentQuery.value =  None
-	   QueryObjectModel.currentQuery.value =  Some(holdQuery)
+		holdQuery.numResults = ObjectModel.totalNumberOfObjects.value
+	    QueryObjectModel.currentQuery.value =  None
+	    QueryObjectModel.currentQuery.value =  Some(holdQuery)
 		QueryObjectController.loadSearchResults(vco)
 		ObjectView.cursorNormal
 	}
