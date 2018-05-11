@@ -185,7 +185,9 @@ object ObjectModel {
 				if (cu(0).dropSelector != collUrn) {
 					ObjectModel.loadNewCollectionUrns(u)
 				} else {
-					ObjectModel.setOffsetToCurrentUrn(u)
+					if (u.isRange != true) {
+						ObjectModel.setOffsetToCurrentUrn(u)
+					}
 				}
 			}
 			case _ => {

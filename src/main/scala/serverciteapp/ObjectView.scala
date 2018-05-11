@@ -96,7 +96,7 @@ def retrieveObjectButton = {
 				val s:String = js.Dynamic.global.document.getElementById("object_urnInput").value.toString
 				ObjectModel.urn.value = Some(Cite2Urn(s))
 				ObjectController.updateUserMessage("Retrieving object…",1)
-				val task = Task{ ObjectController.changeObject }
+				val task = Task{ ObjectController.changeUrn(Cite2Urn(s)) }
 				val future = task.runAsync
 			}
 			

@@ -270,6 +270,7 @@ object ObjectController {
 							case Some(rb) => {
 								ObjectModel.urn.value.get.rangeEndOption match {
 									case Some(re) => {
+										ObjectModel.offset.value = 0
 										ObjectModel.objectOrCollection.value = "range"
 										ObjectModel.isOrdered.value = ObjectModel.currentCatalog.value.get.isOrdered(collUrn)
 										ObjectController.updateUserMessage("Retrieving range…",1)
@@ -350,6 +351,7 @@ object ObjectController {
 		val numObj:Int = ObjectModel.totalNumberOfObjects.value
 		val tLim:Int = ObjectModel.limit.value
 		val tOff:Int = ObjectModel.offset.value
+		/*
 		val startIndex:Int = tOff - 1
 		val endIndex:Int = {
 			if ( (tOff + tLim - 1)  >= numObj ) {
@@ -358,6 +360,7 @@ object ObjectController {
 				((tOff - 1) + (tLim - 1))
 			}
 		}
+		*/
 		ObjectModel.objectOrCollection.value match {
 			case "object" => {
 				ObjectModel.boundDisplayObjects.value.clear
@@ -377,17 +380,12 @@ object ObjectController {
 					ObjectModel.urn.value match {
 						case Some(cu) => {
 							val collUrn:Cite2Urn = cu.dropSelector
-							if (tOff > numObj){
-								ObjectController.updateUserMessage(s"There are ${numObj} objects in the requested ${ObjectModel.objectOrCollection.value}, so an offset of ${tOff} is invalid.",2)
-							} else {
-								ObjectModel.boundDisplayObjects.value.clear
-								for (i <- ObjectModel.boundObjects.value){
-									ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(i)
-								}
-								ObjectModel.updatePrevNext
-								ObjectController.updateReport
-
+							ObjectModel.boundDisplayObjects.value.clear
+							for (i <- ObjectModel.boundObjects.value){
+								ObjectModel.boundDisplayObjects.value += ObjectModel.constructBoundDisplayObject(i)
 							}
+							ObjectModel.updatePrevNext
+							ObjectController.updateReport
 						} 
 						case None => ObjectController.updateUserMessage(s"Value 'urn' for ObjectModel is not set: ${ObjectModel.urn.value}.",1)
 					}
