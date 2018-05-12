@@ -15,6 +15,7 @@ import org.scalajs.dom.raw._
 import edu.holycross.shot.cite._
 import edu.holycross.shot.scm._
 import edu.holycross.shot.ohco2._
+import edu.holycross.shot.dse._
 import edu.holycross.shot.citeobj._
 import edu.holycross.shot.citejson._
 
@@ -149,6 +150,16 @@ object O2Query {
 				}
 			}
 			val vcn:Vector[CitableNode] = o2Json.o2VectorOfCitableNodes(s)
+
+			// grab any DSE records that came with this corpus!
+			val dseVec:Option[Vector[DseRecord]] = o2Json.dsesForCorpus(s)
+			dseVec match {
+				case Some(dv) => DSEModel.updateDsesForCurrentText(dv)
+				case None => DSEModel.clearDsesForCurrentText
+			}
+			// we'll do the same for Commentary eventually…	
+
+
 			val tempCorpus:Corpus = Corpus(vcn)
 			O2Model.updateCurrentListOfUrns(tempCorpus)
 			//DSEModel.updateCurrentListOfDseUrns(tempCorpus)

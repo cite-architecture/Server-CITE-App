@@ -17,6 +17,7 @@ import edu.holycross.shot.scm._
 import edu.holycross.shot.ohco2._
 import edu.holycross.shot.citeobj._
 import edu.holycross.shot.citejson._
+import edu.holycross.shot.dse._
 
 import monix.execution.Scheduler.Implicits.global
 import monix.eval._
@@ -123,6 +124,13 @@ object ObjectQuery {
 					ObjectModel.boundObjects.value.clear	
 				}
 			}
+			// grab any DSE records that came with this corpus!
+			val dseVec:Option[Vector[DseRecord]] = objJson.dsesForVectorOfCiteObjects(jstring)
+			dseVec match {
+				case Some(dv) => DSEModel.updateDsesForCurrentObjects(dv)
+				case None => DSEModel.clearDsesForCurrentObjects
+			}
+			// we'll do the same for Commentary eventually…	
 			ObjectView.cursorNormal
 		} catch {
 			case e:Exception => throw new Exception(s"ObjectQuery.getBoundObjects: ${e}")

@@ -31,11 +31,10 @@ object O2Controller {
 		O2View.cursorWaiting
 		O2Model.getPrevNextUrn(O2Model.urn.value)
 		val newUrn: CtsUrn = O2Model.urn.value
-		DSEModel.updateDsesForText(newUrn)
 		val task = Task{ CiteMainQuery.getJson(O2Query.getLabelForUrnHistory, s"${O2Query.queryLabelForUrn}${newUrn}", urn = Some(newUrn)) }
 		val future = task.runAsync	
 		O2Model.versionsForUrn(newUrn)
-		val task2 = Task{ CiteMainQuery.getJson(O2Query.getCorpus, s"${O2Query.queryGetCorpus}${newUrn}", urn = Some(newUrn))}
+		val task2 = Task{ CiteMainQuery.getJson(O2Query.getCorpus, s"${O2Query.queryGetCorpus}${newUrn}?dse=true", urn = Some(newUrn))}
 		val future2 = task2.runAsync
 	}
 

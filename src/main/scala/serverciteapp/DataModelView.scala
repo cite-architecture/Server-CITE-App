@@ -200,7 +200,34 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 
 	@dom
 	def dseLinkItem(contextUrn:Option[Cite2Urn],propVal:Cite2Urn) = {
-		<span class="citeLinks_linkSpan"> dse data here </span>
+		// First, see if this is a binary image
+		CiteBinaryImageController.implementedByImageCollObjects(propVal) match {
+			case Some(uv) => {
+				g.console.log(s"${propVal} seems to be an image.")
+				//Then, see if it is represented in DSE
+				//val dseUrns:Option[Vector[Cite2Urn]] = DSEModel.implementedByDSE_image(propVal)
+				val dseUrnsVec:Vector[Cite2Urn] = DSEModel.dsesForCurrentObjects.value.filter(d => d.imageroi.dropExtensions == propVal.dropExtensions).map(_.citeObject.urn).toVector
+				val dseUrns:Option[Vector[Cite2Urn]] = {
+					dseUrnsVec.size match {
+						case n if (n < 1) => None
+						case _ => Some(dseUrnsVec)
+					}
+				}
+				g.console.log(s"The following are mapped to ${propVal}: ${dseUrns}")
+				// If there is an existing ROI, add that to allRois
+				val allRois:Option[Vector[ImageRoiModel.Roi]] = {
+					val dseRois:Option[Vector[ImageRoiModel.Roi]] = DSEModel.roisForImage(propVal, contextUrn, dseUrns)
+					dseRois
+				}
+
+				<span class="citeLinks_linkSpan"> 
+					Data Mapped to:
+					{ DataModelView.iipDZLink(propVal.dropExtensions, uv, contextUrn, roiObject = allRois).bind }
+					{ DataModelView.localDZLink(propVal.dropExtensions, uv, contextUrn, roiObject = allRois).bind }
+				</span>
+			}
+			case None => { <!-- empty content --> }
+		}
 	}
 
 	@dom
@@ -282,17 +309,16 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 		}
 	}
 
-	/*	
 	@dom
 	def mappedDataToTextContainer = {
-		O2Model.textRepo.bind match {
-			case None => {
-				<!-- empty content -->	
+		O2Model.hasTextRepo.bind match {
+			case false => {
+				<p>No Texts</p>	
 			}
 			case _ => {
 				<div>
 				{ mappedDseToTextContainer.bind }
-				{ mappedCommentaryToTextContainer.bind }
+				 <!-- { mappedCommentaryToTextContainer.bind } -->
 				</div>
 			}
 		}
@@ -302,7 +328,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 	@dom
 	def mappedDseToTextContainer = {
 		<div id="o2_mappedDseContainer" class={
-				DSEModel.currentListOfDseUrns.length.bind match {
+				DSEModel.dsesForCurrentText.length.bind match {
 					case s if (s > 0) => "app_visible"
 					case _ => "app_hidden"
 				}	
@@ -311,7 +337,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			{ mappedDsePassages.bind }
 		</div>
 	}
-	*/
 
 	/*
 	@dom
@@ -352,24 +377,20 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 	}
 	*/
 
-	/*
 	@dom
 	def mappedDsePassages = {
 		O2Model.currentNumberOfCitableNodes.bind match {
-			case 0 => { <p>None</p> }
+			case 0 => { <p>No DSE Passages</p> }
 			case _ => {  
 				val currentUrn:CtsUrn = O2Model.urn.bind
-				val uv:Vector[CtsUrn] = (O2Model.textRepo.value.get.corpus >= currentUrn).nodes.map(_.urn)
-				val dseUrns:Option[Vector[Cite2Urn]] = DSEModel.dseObjectsForCorpus(uv)
 				<ul>{ 
-					for (u <- DSEModel.currentListOfDseUrns) yield {
-						{ DataModelView.objectLinkItem(None, u, true).bind }
+					for (u <- DSEModel.dsesForCurrentText) yield {
+						{ DataModelView.objectLinkItem(None, u.citeObject.urn, true).bind }
 					}
 				} </ul>
 			}
 		}	
 	}
-	*/
-
+ 	
 
 }

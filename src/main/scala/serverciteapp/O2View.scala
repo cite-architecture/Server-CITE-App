@@ -53,8 +53,7 @@ object O2View {
 		<div id="02_sidebar" class="app_sidebarDiv">
 		{ citedWorksMenu.bind }
 		{ 
-			<!-- empty content -->	
-			// DataModelView.mappedDataToTextContainer.bind }
+			{ DataModelView.mappedDataToTextContainer.bind }
 		}
 		</div>
 
@@ -210,7 +209,7 @@ def versionNodes(vCorp:O2Model.BoundCorpus) = {
 							case _ => " long"
 						}
 					}
-					//val inDse = DSEModel.ctsInDse(n.urn)
+					val inDse = DSEModel.ctsInDse(n.urn)
 					//val hasComment = CommentaryModel.ctsHasCommentary(n.urn)
 					val passageClass:String = {
 						O2Model.checkForRTL(n.text) match {
@@ -224,8 +223,8 @@ def versionNodes(vCorp:O2Model.BoundCorpus) = {
 							id={ s"node_${n.urn}"} >
 							{ nodeCitationSpan(n.urn).bind }
 
-							{  <!-- empty content -->
-							/*
+							{  
+							
 								for (o <- inDse) yield {
 									<span 
 									class="o2_passageInDse"
@@ -234,7 +233,7 @@ def versionNodes(vCorp:O2Model.BoundCorpus) = {
 										val future = task.runAsync
 									}}>∞</span>									
 								}	
-								*/
+								
 							}
 							{  <!-- empty content -->
 							/*

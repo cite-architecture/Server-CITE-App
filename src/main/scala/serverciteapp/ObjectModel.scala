@@ -73,6 +73,10 @@ object ObjectModel {
 	val showObjects = Var(false) // if true, show a whole object; false, URN+label
 	val browsable = Var(false)
 	val objectReport = Var("")
+	/* 
+	As number of objects goes up, the number of DSEs explode. Let's not show DSEs if the limit is more than the number below…
+	*/
+	val dseLimit = 8 
 
 	// for navigation
 	//      the prevOption and nextOption params are:
@@ -152,7 +156,14 @@ object ObjectModel {
 
 		if (u.isRange){
 			if (ObjectModel.currentCatalog.value.get.isOrdered(u.dropSelector)){
-				val qs:String = s"${ObjectQuery.queryGetPaged}${u}?offset=${offset.value}&limit=${limit.value}"
+				// if the limit > [ObjectModel.dseLimit], don't get DSE info
+				val getDseString:String = {
+					ObjectModel.limit.value match {
+						case n if (n > ObjectModel.dseLimit) => ""
+						case _ => "&dse=true"
+					}	
+				}
+				val qs:String = s"${ObjectQuery.queryGetPaged}${u}?offset=${offset.value}&limit=${limit.value}${getDseString}"
 	    		val task = Task{ CiteMainQuery.getJson(ObjectQuery.getRangeOrCollection, qs, urn = Some(u)) }
 	    		val future = task.runAsync
 			} else {
@@ -162,13 +173,19 @@ object ObjectModel {
 			u.objectComponentOption match {
 				// Just object
 				case Some(o) => {
-					val qs:String = s"${ObjectQuery.queryGetObjects}${u}"
+					val qs:String = s"${ObjectQuery.queryGetObjects}${u}?dse=true"
 		    		val task = Task{ CiteMainQuery.getJson(ObjectQuery.getObject, qs, urn = Some(u)) }
 					val future = task.runAsync
 				}
 				// collection
 				case None => {
-					val qs:String = s"${ObjectQuery.queryGetPaged}${u}?offset=${offset.value}&limit=${limit.value}"
+					val getDseString:String = {
+						ObjectModel.limit.value match {
+							case n if (n > ObjectModel.dseLimit) => ""
+							case _ => "&dse=true"
+						}	
+					}
+					val qs:String = s"${ObjectQuery.queryGetPaged}${u}?offset=${offset.value}&limit=${limit.value}${getDseString}"
 		    		val task = Task{ CiteMainQuery.getJson(ObjectQuery.getRangeOrCollection, qs, urn = Some(u)) }
 					val future = task.runAsync
 				}
