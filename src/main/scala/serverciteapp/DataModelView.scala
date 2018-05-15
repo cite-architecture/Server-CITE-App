@@ -79,6 +79,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 
 @dom
 	def objectLinkItem(contextUrn:Option[Cite2Urn],propVal:Cite2Urn,labeled:Boolean = false, idString:String = "", groupId:String = "") = {
+
 			val tempUrn:Cite2Urn = {
 				propVal.versionOption match {
 					case Some(v) => propVal.dropExtensions.dropProperty
@@ -176,20 +177,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 							optVecRoi
 						}
 						).bind }
-					{ DataModelView.localDZLink(propVal, 
-						uv, 
-						contextUrn, 
-						roiObject = {
-							val tr = ImageRoiModel.roiFromUrn(propVal, contextUrn, contextUrn )
-							val optVecRoi:Option[Vector[ImageRoiModel.Roi]] = {
-								tr match {
-									case Some(r) => Some(Vector(r))
-									case None => None
-								}
-							}
-							optVecRoi
-						}
-						).bind }
 				</li>
 			}
 			case None => {
@@ -203,7 +190,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 		// First, see if this is a binary image
 		CiteBinaryImageController.implementedByImageCollObjects(propVal) match {
 			case Some(uv) => {
-				g.console.log(s"${propVal} seems to be an image.")
 				//Then, see if it is represented in DSE
 				//val dseUrns:Option[Vector[Cite2Urn]] = DSEModel.implementedByDSE_image(propVal)
 				val dseUrnsVec:Vector[Cite2Urn] = DSEModel.dsesForCurrentObjects.value.filter(d => d.imageroi.dropExtensions == propVal.dropExtensions).map(_.citeObject.urn).toVector
@@ -213,7 +199,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 						case _ => Some(dseUrnsVec)
 					}
 				}
-				g.console.log(s"The following are mapped to ${propVal}: ${dseUrns}")
 				// If there is an existing ROI, add that to allRois
 				val allRois:Option[Vector[ImageRoiModel.Roi]] = {
 					val dseRois:Option[Vector[ImageRoiModel.Roi]] = DSEModel.roisForImage(propVal, contextUrn, dseUrns)
@@ -223,7 +208,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 				<span class="citeLinks_linkSpan"> 
 					Data Mapped to:
 					{ DataModelView.iipDZLink(propVal.dropExtensions, uv, contextUrn, roiObject = allRois).bind }
-					{ DataModelView.localDZLink(propVal.dropExtensions, uv, contextUrn, roiObject = allRois).bind }
 				</span>
 			}
 			case None => { <!-- empty content --> }
@@ -270,44 +254,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 	}
 
 
-	@dom
-	def localDZLink(urn:Cite2Urn, uv:Vector[Cite2Urn], contextUrn:Option[Cite2Urn], roiObject:Option[Vector[ImageRoiModel.Roi]] = None) = {
-		CiteBinaryImageController.implementedByProtocol(uv,CiteBinaryImageModel.localDZProtocolString) match {
-			case Some(co) => {
-				CiteBinaryImageModel.imgUseLocal.bind match {
-					case true => {
-						<span class="citeLinks_linkSpan">
-							<a onclick={ event: Event => {
-								val roisToPaint:Option[Vector[ImageRoiModel.Roi]] = roiObject match {
-									case None => {
-											val roi:Option[Vector[ImageRoiModel.Roi]] = {
-												val tempRoi:Option[ImageRoiModel.Roi] = ImageRoiModel.roiFromUrn(urn, contextUrn)
-												CiteBinaryImageModel.currentContextUrn.value = contextUrn
-												tempRoi match {
-													case Some(r) => Some(Vector(r))
-													case None => None
-												}
-											}
-											roi
-										}
-									case Some(rois) => {
-										Some(rois)
-									}
-								}
-							DataModelController.viewImage(contextUrn, co, urn, roisToPaint)
-							}
-						} >Local Image</a></span>
-					}
-					case _ => {
-						<!-- empty content -->
-					}
-				}
-			}
-			case None => {
-				<!-- empty content -->							
-			}
-		}
-	}
+	
 
 	@dom
 	def mappedDataToTextContainer = {

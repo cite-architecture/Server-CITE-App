@@ -88,14 +88,13 @@ object DSEModel {
 
 			// Get ROI objects for all objects in dseUrns mapped to this image
 			val allRois:Option[Vector[ImageRoiModel.Roi]] = {
-				g.console.log(s"roisForImage got ${dseUrns}")
 
 				dseUrns match {
 					case None => None
 					case Some(urns) => {
 						val dseRecs:Vector[DseRecord] = urns.map(u => {
 							val recs:Vector[DseRecord] =  dsesForCurrentObjects.value.filter(dseRec => {
-								dseRec.imageroi == u
+								dseRec.citeObject.urn == u
 							}).toVector
 							recs
 						}).toVector.flatten

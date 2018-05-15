@@ -1,5 +1,7 @@
 # Release notes
 
+**1.4.0**: DSE Data Model implemented. There remain issues (see GitHub) with asynchronous loading of DSE data. 
+
 **1.3.0**: Rebuild CiteCollection handling to push much more work back onto the server.
 
 **1.2.0**: Images.

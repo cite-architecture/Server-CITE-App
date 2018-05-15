@@ -207,7 +207,7 @@ object CiteBinaryImageView {
 								   	case None => ""
 							   	}
 							   }	
-								//DataModelView.textLinkItem(curn, du.asInstanceOf[CtsUrn], idString=s"image_mappedUrn_${roi._1}", groupId=groupId).bind
+								//DataModelView.textLinkItem(curn, du.asInstanceOf[CtsUrn], idSduring=s"image_mappedUrn_${roi._1}", groupId=groupId).bind
 								DataModelView.objectLinkItem(curn, roi._2.contextUrn.get, labeled=true, idString=s"image_mappedUrn_${roi._1}", groupId=groupId).bind
 							}
 							case _ => {

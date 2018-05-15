@@ -127,9 +127,16 @@ object ObjectQuery {
 			// grab any DSE records that came with this corpus!
 			val dseVec:Option[Vector[DseRecord]] = objJson.dsesForVectorOfCiteObjects(jstring)
 			dseVec match {
-				case Some(dv) => DSEModel.updateDsesForCurrentObjects(dv)
-				case None => DSEModel.clearDsesForCurrentObjects
+				case Some(dv) => {
+					g.console.log(s"OQ.getObject for ${urn} got ${dv.size} dses.")
+					DSEModel.updateDsesForCurrentObjects(dv)
+				}
+				case None => {
+					g.console.log(s"OQ.getObject for ${urn} got NO dses.")
+					DSEModel.clearDsesForCurrentObjects
+				}
 			}
+
 			// we'll do the same for Commentary eventually…	
 			ObjectView.cursorNormal
 		} catch {
@@ -151,6 +158,14 @@ object ObjectQuery {
 					throw new Exception(s"Did not get valid stats on request from server.")
 				}
 			}
+			// grab any DSE records that came with this corpus!
+			val dseVec:Option[Vector[DseRecord]] = objJson.dsesForVectorOfCiteObjects(jstring)
+			dseVec match {
+				case Some(dv) => DSEModel.updateDsesForCurrentObjects(dv)
+				case None => DSEModel.clearDsesForCurrentObjects
+			}
+			g.console.log(s"[getRangeOrCollection] Got ${urn} which came with ${dseVec.size} DSEs.")
+			// we'll do the same for Commentary eventually…	
 			ObjectModel.collectionUrnCheck(urn.get.asInstanceOf[Cite2Urn])
 			vco.size match {
 				case n if (n > 0) => {

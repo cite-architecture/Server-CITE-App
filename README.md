@@ -3,7 +3,7 @@
 # CITE-App-Server
 An end-user environment for working with data in the CITE environment that is served by the SCS microservice—browsing and analyzing texts, viewing objects and images, visualizing graphs of scholarly data. Written in ScalaJS.
 
-## Current version: 1.3.0
+## Current version: 1.4.0
 
 Status:  **active development**. [Release notes](releases.md)
 

@@ -84,6 +84,7 @@ object CiteBinaryImageModel {
 
 	// An ImageROI object associates an roi with a urn; 
 	// our image may have none, one, or many
+	//val imageRoiTuple = Vars.empty[(Int,ImageRoiModel.Roi)]
 	val imageRoiTuple = Vars.empty[(Int,ImageRoiModel.Roi)]
 	// This splits imageRoiTuple up into groups
 	val imageRoiGroups = Var[Option[Map[String,Int]]](None)
@@ -112,12 +113,25 @@ object CiteBinaryImageModel {
 		imageRoiGroupSeq.value.clear
 	}
 
+	@dom
 	def loadROIs(rois:Vector[ImageRoiModel.Roi]):Unit = {
 		clearROIs
+		/*
 		for ( (roi,i) <- rois.zipWithIndex){
+			g.console.log(s"roi = ${roi}, i = ${i}")
 			val t:(Int,ImageRoiModel.Roi) = (i, roi)
+			g.console.log("assigned 't'. Adding to imageRoiTuple…")
 			CiteBinaryImageModel.imageRoiTuple.value += t
+			g.console.log("back from assign imageRoiTupe\n")
 		}
+		*/
+		val tempRoiVec:Vector[(Int,ImageRoiModel.Roi)] = {
+			rois.zipWithIndex.map( rt => {
+				val t:(Int,ImageRoiModel.Roi) = (rt._2, rt._1)
+				t
+			}).toVector
+		}
+		for (r <- tempRoiVec) CiteBinaryImageModel.imageRoiTuple.value += r 
 		imageRoiGroups.value = CiteBinaryImageController.groupsForROIs(rois)
 		imageRoiGroups.value match {
 			case Some(irg) => {

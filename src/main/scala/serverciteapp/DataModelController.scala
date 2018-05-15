@@ -83,24 +83,25 @@ object DataModelController {
 	}
 
 	def hasObject(u:Cite2Urn):Boolean = {
-		val urn:Cite2Urn = {
-			val tempU:Cite2Urn = u.dropExtensions	
-			tempU.isRange match {
-				case true => tempU.rangeBeginUrn
-				case _ => tempU
+		try {
+			val urn:Cite2Urn = {
+				val tempU:Cite2Urn = u.dropExtensions	
+				tempU.isRange match {
+					case true => tempU.rangeBeginUrn
+					case _ => tempU
+				}
 			}
+			ObjectModel.labelMap.value match {
+				case Some(lm) => {
+					lm.contains(urn)
+				}
+				case None => {
+					false		
+				}
+			}	
+		} catch {
+			case e:Exception => false
 		}
-		ObjectModel.labelMap.value match {
-			case Some(lm) => {
-				lm.filterKeys(_ ~~ urn).size match {
-					case 1 => true
-					case _ => false
-				}	
-			}
-			case None => {
-				false		
-			}
-		}	
 	}
 
 	/* Check to see if the Citable Image datamodel is:
@@ -150,7 +151,6 @@ object DataModelController {
  		u match {
  			case CtsUrn(_) => retrieveTextPassage(None, u.asInstanceOf[CtsUrn])
  			case Cite2Urn(_) => {
- 			//	g.console.log("Retrieving objects not yet implemented.")
  				retrieveObject(None, u.asInstanceOf[Cite2Urn])
  			}
  			case _ => 	CiteMainController.updateUserMessage(s"Could not resolve ${u} to either CtsUrn or Cite2Urn",2)
