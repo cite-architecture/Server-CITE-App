@@ -265,7 +265,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			case _ => {
 				<div>
 				{ mappedDseToTextContainer.bind }
-				 <!-- { mappedCommentaryToTextContainer.bind } -->
+			 { mappedCommentaryToTextContainer.bind }
 				</div>
 			}
 		}
@@ -285,7 +285,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 		</div>
 	}
 
-	/*
 	@dom
 	def mappedCommentaryToTextContainer = {
 		<div id="o2_mappedCommentContainer" class={
@@ -298,9 +297,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			{ commentaryPassages.bind}
 		</div>	
 	}
-	*/
 
-	/*
 	@dom
 	def commentaryPassages = {
 		O2Model.currentNumberOfCitableNodes.bind match {
@@ -322,7 +319,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			}
 		}	
 	}
-	*/
+	
 
 	@dom
 	def mappedDsePassages = {

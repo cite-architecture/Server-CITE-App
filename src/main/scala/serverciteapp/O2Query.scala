@@ -18,6 +18,7 @@ import edu.holycross.shot.ohco2._
 import edu.holycross.shot.dse._
 import edu.holycross.shot.citeobj._
 import edu.holycross.shot.citejson._
+import edu.holycross.shot.citerelation._
 
 import monix.execution.Scheduler.Implicits.global
 import monix.eval._
@@ -29,6 +30,7 @@ object O2Query {
 
 
 	val o2Json:Ohco2Json = Ohco2Json()
+	val relationsJson:RelationsJson = RelationsJson()
 
 	/* Queries */
 	val queryCatalog:String = "/texts"
@@ -158,6 +160,13 @@ object O2Query {
 				case None => DSEModel.clearDsesForCurrentText
 			}
 			// we'll do the same for Commentary eventually…	
+			val commentsVec:Option[Vector[CiteTriple]] = o2Json.commentaryForCorpus(s)
+			commentsVec match {
+				case Some(cv) => {
+					CommentaryModel.updateCurrentListOfComments(cv)
+				}
+				case None => CommentaryModel.clearComments
+			}
 
 
 			val tempCorpus:Corpus = Corpus(vcn)

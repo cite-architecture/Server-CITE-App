@@ -1,5 +1,7 @@
 # Release notes
 
+**1.6.0**: Commentary implemented.
+
 **1.5.0**: Relations implemented.
 
 **1.4.0**: DSE Data Model implemented. There remain issues (see GitHub) with asynchronous loading of DSE data. 

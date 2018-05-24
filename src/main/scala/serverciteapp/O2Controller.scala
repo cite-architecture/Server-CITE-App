@@ -34,7 +34,7 @@ object O2Controller {
 		val task = Task{ CiteMainQuery.getJson(O2Query.getLabelForUrnHistory, s"${O2Query.queryLabelForUrn}${newUrn}", urn = Some(newUrn)) }
 		val future = task.runAsync	
 		O2Model.versionsForUrn(newUrn)
-		val task2 = Task{ CiteMainQuery.getJson(O2Query.getCorpus, s"${O2Query.queryGetCorpus}${newUrn}?dse=true", urn = Some(newUrn))}
+		val task2 = Task{ CiteMainQuery.getJson(O2Query.getCorpus, s"${O2Query.queryGetCorpus}${newUrn}?dse=true&commentary=true", urn = Some(newUrn))}
 		val future2 = task2.runAsync
 	}
 
