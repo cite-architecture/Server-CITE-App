@@ -26,9 +26,7 @@ object CiteMainView {
 	val objectView = ObjectView.objectDiv
 	val imageView = CiteBinaryImageView.imageDiv
 	val serverMode = Var(true)
-/*
 	val relationsView = RelationsView.relationsDiv
-	*/
 
 
 	def changeTab(tab:String):Unit = {
@@ -188,6 +186,7 @@ object CiteMainView {
 					<input type="radio" id="tab-5" name="tab-group-1" checked={ false }/>
 					<label class="tab_label" for="tab-5">Relations</label>
 						<div class="content">
+							{ relationsView.bind }
 						</div>
 				</div>
 

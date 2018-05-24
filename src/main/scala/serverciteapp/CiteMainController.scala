@@ -110,6 +110,7 @@ object CiteMainController {
 
 
 			// Relations stuff
+			RelationsModel.updateRelations
 			// Data Model Stuff
 			//     the datamodel task will, in turn, start the process
 			//     of building out CiteBinaryImages

@@ -76,6 +76,11 @@ object ObjectQuery {
 			case n if (n > 0) => {
 				ObjectModel.labelMap.value = Some(ol)
 				ObjectController.preloadUrn
+				// Improve Relations-labels, if appropriate
+				if (RelationsModel.allVerbs.value.size > 0) {
+					RelationsModel.loadVerbs(RelationsModel.allVerbs.value.toVector)
+				}
+
 			}
 			case _ => {
 				ObjectModel.labelMap.value = None	

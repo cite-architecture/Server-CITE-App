@@ -62,6 +62,10 @@ ul.relation_listItemList li.citeLinks_linkItem {
 	padding: 0;
 }
 
+#nrelations_verbFilterSelect {
+	max-width: 90%;
+}
+
 
 /* Object Formatting */
 
