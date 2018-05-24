@@ -93,14 +93,12 @@ object RelationsController {
 	}
 
 	def findRelations(hi:RelationsModel.HistoryItem):Unit = {
-		g.console.log(s"Will find relations for ${hi}")
 		RelationsModel.urn.value = Some(hi.search)
 		RelationsModel.filterVerb.value = hi.filter
 		RelationsController.findRelations
 	}
 
 	def findRelations:Unit = {
-		g.console.log(s"Will find relations for ${RelationsModel.urn.value}")
 		if (RelationsModel.urn.value != None) {
 			val q:String = {
 				val filter:String = {
@@ -111,7 +109,6 @@ object RelationsController {
 				}
 				s"/relations/${RelationsModel.urn.value.get}${filter}"
 			}	
-			g.console.log(s"Querying: ${q}")
 			val task = Task{ CiteMainQuery.getJson(RelationsQuery.getRelations, q, urn = RelationsModel.urn.value) }
 			val future = task.runAsync
 

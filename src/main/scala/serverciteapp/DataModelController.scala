@@ -166,7 +166,6 @@ object DataModelController {
 	def retrieveObject(contextUrn:Option[Cite2Urn] = None, urn:Cite2Urn):Unit = {
 			val tempUrn:Cite2Urn = urn.dropExtensions
 			ObjectController.changeUrn(tempUrn)
-			ObjectController.changeObject
 			CiteMainView.changeTab("object")
 	}
 

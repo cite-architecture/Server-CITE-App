@@ -62,6 +62,22 @@ object O2Query {
 				O2Controller.updateUserMessage(s"Updated text repository with ${O2Model.citedWorks.value.size} versions of works.",0)
 				CiteMainView.changeTab("text")
 				O2Controller.preloadUrn
+
+				// Load request parameter
+				CiteMainModel.requestParameterUrn.value match {
+					case Some(u) => {
+						u match {
+							case CtsUrn(ctsurn) => {
+								DataModelController.retrieveTextPassage(None, CtsUrn(ctsurn))
+								CiteMainView.changeTab("text")
+							}
+							case _ => // do nothing
+						}
+					}	
+					case None => // do nothing
+				}
+			
+
 			}
 			case None => {
 				O2Model.citedWorks.value.clear
