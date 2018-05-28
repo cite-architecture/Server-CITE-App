@@ -1,5 +1,7 @@
 # Release notes
 
+**1.7.1**: Fixed "race condition" involving image-rois.
+
 **1.7.0**: Accepting a `urn=` request parameter, CTS or CITE2 URN.
 
 **1.6.0**: Commentary implemented.

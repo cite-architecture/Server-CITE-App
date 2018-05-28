@@ -54,6 +54,7 @@ object CiteBinaryImageQuery {
 		}
 	}
 
+	// Make a little CITE collection repo of just image stuff
 	def initRepo2(jstring:String, urn:Option[Urn] = None):Unit = {
 		try {
 			val cat:CiteCatalog = objJson.citeCatalog(jstring)
@@ -127,7 +128,7 @@ object CiteBinaryImageQuery {
 				   	 	)
 				   	 )
 			   	 }  	 
-			   	 CiteMainController.updateUserMessage("Binary Images are configured and ready.",0)
+			   	 CiteMainController.updateUserMessage(s"Binary Images are configured and ready. Image collections: ${CiteBinaryImageModel.binaryImageCollectionCatalog.value.get.collections.size}",0)
 			   	 /* And finally… */
 			   	 CiteBinaryImageController.discoverProtocols
 				}

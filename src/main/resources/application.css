@@ -12,6 +12,9 @@ ul.citeLinks_linksList li {
 
 li#image_imagePreviewDiv {
 	list-style: none;
+	/* border: 1px solid silver;
+	background-color: floralwhite;
+	*/
 }
 
 li.citeLinks_linkItem, span.citeLinks_linkSpan {

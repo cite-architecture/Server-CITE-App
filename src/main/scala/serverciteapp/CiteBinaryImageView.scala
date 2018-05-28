@@ -106,7 +106,7 @@ object CiteBinaryImageView {
 	@dom
 	def imageCollectionsContainer = {
 		<div id="image_imageCollectionsContainer">
-			<h2>Image Collections</h2>
+			<h2><!-- Image Collections --></h2>
 			{
 				<ul>
 					{ for ( ic <- CiteBinaryImageModel.binaryImageCollections) yield {

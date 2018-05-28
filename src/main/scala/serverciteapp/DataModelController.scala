@@ -71,7 +71,7 @@ object DataModelController {
 	def hasText(u:CtsUrn):Boolean = {
 		O2Model.hasTextRepo.value match {
 			case true => {
-				O2Model.currentCatalog.value.get.texts.filter(_.urn ~~ u.dropPassage.dropVersion).size match {
+				O2Model.currentCatalog.value.get.texts.filter(_.urn ~~ u.dropPassage).size match {
 					case 0 => false
 					case _ => true
 				}

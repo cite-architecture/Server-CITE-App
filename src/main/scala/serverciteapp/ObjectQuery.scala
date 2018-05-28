@@ -129,6 +129,17 @@ object ObjectQuery {
 
 	def getObject(jstring:String, urn:Option[Urn] = None):Unit = {
 		try {
+			// grab any DSE records that came with this corpus!
+			val dseVec:Option[Vector[DseRecord]] = objJson.dsesForVectorOfCiteObjects(jstring)
+			dseVec match {
+				case Some(dv) => {
+					DSEModel.updateDsesForCurrentObjects(dv)
+				}
+				case None => {
+					DSEModel.clearDsesForCurrentObjects
+				}
+			}
+			
 			ObjectModel.collectionUrnCheck(urn.get.asInstanceOf[Cite2Urn])
 			val vco:Vector[CiteObject] = objJson.vectorOfCiteObjects(jstring)
 			vco.size match {
@@ -141,16 +152,6 @@ object ObjectQuery {
 				}
 				case _ => {
 					ObjectModel.boundObjects.value.clear	
-				}
-			}
-			// grab any DSE records that came with this corpus!
-			val dseVec:Option[Vector[DseRecord]] = objJson.dsesForVectorOfCiteObjects(jstring)
-			dseVec match {
-				case Some(dv) => {
-					DSEModel.updateDsesForCurrentObjects(dv)
-				}
-				case None => {
-					DSEModel.clearDsesForCurrentObjects
 				}
 			}
 

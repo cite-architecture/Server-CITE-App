@@ -67,7 +67,9 @@ object CiteBinaryImageController {
 					case _ => None
 				}
 			}
-			case None => None
+			case None => {
+				None
+			}
 		}	
 	}
 

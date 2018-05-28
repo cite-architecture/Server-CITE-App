@@ -172,7 +172,9 @@ object O2Query {
 			// grab any DSE records that came with this corpus!
 			val dseVec:Option[Vector[DseRecord]] = o2Json.dsesForCorpus(s)
 			dseVec match {
-				case Some(dv) => DSEModel.updateDsesForCurrentText(dv)
+				case Some(dv) => {
+					DSEModel.updateDsesForCurrentText(dv)
+				}
 				case None => DSEModel.clearDsesForCurrentText
 			}
 			// we'll do the same for Commentary eventually…	
