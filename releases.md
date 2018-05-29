@@ -1,5 +1,7 @@
 # Release notes
 
+**1.7.2**: Minor bug reporting number of objects in a collection.
+
 **1.7.1**: Fixed "race condition" involving image-rois.
 
 **1.7.0**: Accepting a `urn=` request parameter, CTS or CITE2 URN.

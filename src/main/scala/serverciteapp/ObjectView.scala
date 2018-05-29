@@ -375,7 +375,7 @@ def numberInCollection(u:Cite2Urn) = {
 	ObjectModel.labelMap.bind match {
 		case Some(lm) => {
 			val i:Integer = lm.filterKeys( _ ~~ u ).size
-			s"${i} object${if (i > 1) "s"}." 
+			s"${i} object${if (i > 1) "s" else ""}." 
 		}
 		case None => {
 			"No objects."
