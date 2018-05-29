@@ -1,5 +1,7 @@
 # Release notes
 
+**1.7.3**: Adding link to look up any object, or Cite2Urn propert-value in Relations.
+
 **1.7.2**: Minor bug reporting number of objects in a collection.
 
 **1.7.1**: Fixed "race condition" involving image-rois.

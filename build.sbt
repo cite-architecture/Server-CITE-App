@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "serverciteapp"
 
-version := "1.7.2"
+version := "1.7.3"
 
 scalaVersion := "2.12.6"
 
