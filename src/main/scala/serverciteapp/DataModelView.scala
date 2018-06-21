@@ -345,7 +345,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 					CiteMainView.changeTab("relations")
 					RelationsController.changeUrn(s"${propVal.toString}")
 				}
-			}>Find in Relations</a>
+			}>Find Relations</a>
 			
 		</span>
 	}
