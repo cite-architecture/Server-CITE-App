@@ -1,5 +1,7 @@
 # Release notes
 
+**1.9.0**: Better handling of links: allows opening URNs in a new window, with a new instance of the App.
+
 **1.8.0**: Adding link to look up any object, or Cite2Urn propert-value in Relations.
 
 **1.7.2**: Minor bug reporting number of objects in a collection.
