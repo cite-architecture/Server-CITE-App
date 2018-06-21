@@ -226,24 +226,40 @@ def versionNodes(vCorp:O2Model.BoundCorpus) = {
 							{  
 							
 								for (o <- inDse) yield {
-									<span 
+									<a 
 									class="o2_passageInDse"
 									onclick = { event: Event => {
-										val task = Task{ DataModelController.retrieveObject(None,o) }
-										val future = task.runAsync
-									}}>▴</span>									
+										val mouseEvent = event.asInstanceOf[MouseEvent]
+										if (mouseEvent.metaKey){
+											true
+										} else {
+											val task = Task{ DataModelController.retrieveObject(None,o) }
+											val future = task.runAsync
+											false
+										}
+									}}
+									href={ s"?urn=${o}" }
+									>▴</a>									
 								}	
 								
 							}
 							{  
 							
 								for (c <- hasComment) yield {
-								<span 
+								<a 
 									class="o2_commentary"
 									onclick = { event: Event => {
-										val task = Task{ DataModelController.retrieveUrn(c) }
-										val future = task.runAsync
-									}}>*</span>
+										val mouseEvent = event.asInstanceOf[MouseEvent]
+										if (mouseEvent.metaKey){
+											true
+										} else {
+											val task = Task{ DataModelController.retrieveUrn(c) }
+											val future = task.runAsync
+											false
+										}
+									}}
+									href={ s"?urn=${c}" }
+									>*</a>
 								}
 								
 							}
@@ -352,14 +368,22 @@ def passageUrnSpan(urn:CtsUrn, s:String) = {
 	<span>
 	{ s }
 	</span>
-	<span
+	<a
 	class="app_clickable"
 	onclick={ event: Event => {
+			val mouseEvent = event.asInstanceOf[MouseEvent]
+			if (mouseEvent.metaKey){
+				true
+			} else {
 				O2Controller.changeUrn(urn)
+				false
+			}
 		}
-	}>
+	}
+	href={ s"?urn=${urn}" }
+	>
 	{ urn.toString}
-	</span>
+	</a>
 }
 
 def cursorWaiting = {
