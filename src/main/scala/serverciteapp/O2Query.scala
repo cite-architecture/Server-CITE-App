@@ -61,6 +61,7 @@ object O2Query {
 
 				O2Controller.updateUserMessage(s"Updated text repository with ${O2Model.citedWorks.value.size} versions of works.",0)
 				CiteMainView.changeTab("text")
+
 				O2Controller.preloadUrn
 
 				// Load request parameter

@@ -38,6 +38,7 @@ object CiteMainModel {
 		val objectProtocol:String = "ObjectProtocol"
 
 
+		val showHmt = Var(true)
 		val showTexts = Var(true)
 		val showNg = Var(true)
 		val showCollections = Var(true)

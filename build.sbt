@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "serverciteapp"
 
-version := "1.9.0"
+version := "1.9.1"
 
 scalaVersion := "2.12.6"
 
@@ -17,7 +17,7 @@ libraryDependencies ++= Seq(
   "org.scala-js" %% "scalajs-stubs" % scalaJSVersion % "provided",
   "org.scala-js" %%% "scalajs-dom" % "0.9.5",
   "io.monix" %%% "monix" % "2.3.0",
-  "edu.holycross.shot.cite" %%% "xcite" % "3.3.0",
+  "edu.holycross.shot.cite" %%% "xcite" % "3.4.0",
   "edu.holycross.shot" %%% "ohco2" % "10.8.1",
   "edu.holycross.shot" %%% "scm" % "6.1.0",
   "edu.holycross.shot" %%% "citeobj" % "7.0.1",
