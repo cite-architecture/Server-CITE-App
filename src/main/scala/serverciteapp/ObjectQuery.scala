@@ -243,7 +243,14 @@ object ObjectQuery {
 		try {
 			val vco:Vector[Cite2Urn] = objJson.vectorOfCite2Urns(jstring)
 			ObjectModel.boundCollectionUrns.value.clear
-			for (u <- vco) {ObjectModel.boundCollectionUrns.value += u }
+			for (u <- vco) {
+				try {
+					ObjectModel.boundCollectionUrns.value += u 
+				} catch {
+					case e:Exception => throw new Exception(s"Failed on ${u}.")
+				}
+			}
+			val concreteUrn:Cite2Urn = urn.get.asInstanceOf[Cite2Urn]
 			ObjectModel.setOffsetToCurrentUrn(urn.get.asInstanceOf[Cite2Urn])
 		} catch {
 			case e:Exception => throw new Exception(s"ObjectQuery.getNextUrn: ${e}")

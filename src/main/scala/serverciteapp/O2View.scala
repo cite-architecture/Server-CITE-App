@@ -347,6 +347,14 @@ def loadCitedWorks = {
 	}	
 }
 
+/*
+@dom
+def betterWorkLabel = {
+	val textGroup:String = 
+		val workName:String = 
+}
+*/
+
 
 
 /* General-use functions for making clickable URNs */

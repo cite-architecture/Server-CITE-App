@@ -21,6 +21,7 @@ import js.annotation._
 @JSExportTopLevel("serverciteapp.CiteMainView")
 object CiteMainView {
 
+
 	val textView = O2View.o2div
 	val ngramView = NGView.nGdiv
 	val objectView = ObjectView.objectDiv
@@ -35,6 +36,7 @@ object CiteMainView {
 			case "object" => js.Dynamic.global.document.getElementById("tab-3").checked = true
 			case "image" => js.Dynamic.global.document.getElementById("tab-4").checked = true
 			case "relations" => js.Dynamic.global.document.getElementById("tab-5").checked = true
+			case _ => js.Dynamic.global.document.getElementById("tab-1").checked = true
 		}
 	}
 
@@ -109,7 +111,7 @@ object CiteMainView {
 			<span id="app_header_cexInfo">
 			{ CiteMainModel.currentLibraryMetadataString.bind }
 			</span>
-			<span id="app_header_versionInfo">CiteApp (Server) v. { BuildInfo.version }</span>
+			<span id="app_header_versionInfo">Homer Multitext Browser (Server CiteApp v. { BuildInfo.version } )</span>
 			<span id="app_help_link">[ <a target="_blank" href="https://github.com/cite-architecture/CITE-App/wiki">Online Help</a> ]</span>
 		</header>
 

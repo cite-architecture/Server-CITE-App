@@ -109,10 +109,24 @@ object O2Controller {
 
 	@dom
 	def preloadUrn = {
-		if (O2Model.citedWorks.value.length > 0) {
-			val firstWork:CtsUrn = O2Model.citedWorks.value(0)
-			val task = Task{ CiteMainQuery.getJson(O2Query.getFirstUrn, s"${O2Query.queryFirstUrn}${firstWork.toString}", urn = None) }
-			val future = task.runAsync	
+		// Don't if there was a pre-loaded URN
+		val hasCtsUrnReqParam:Boolean = {
+			CiteMainModel.requestParameterUrn.value match {
+				case Some(u) => {
+					u match {
+						case CtsUrn(u) => true
+						case _ => false
+					}
+				}
+				case None => false
+			}
+		}
+		if (hasCtsUrnReqParam == false ) {	
+			if (O2Model.citedWorks.value.length > 0) {
+				val firstWork:CtsUrn = O2Model.citedWorks.value(0)
+				val task = Task{ CiteMainQuery.getJson(O2Query.getFirstUrn, s"${O2Query.queryFirstUrn}${firstWork.toString}", urn = None) }
+				val future = task.runAsync	
+			}
 		}
 	}
 
