@@ -393,8 +393,6 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			case _ => {  
 				<ul>{ 
 					for (c <- CommentaryModel.currentCommentsDistinctComments) yield {
-						g.console.log(s"got commentary: ${c}")
-						
 						commentaryLinkItem(c).bind
 					}
 				} </ul>
