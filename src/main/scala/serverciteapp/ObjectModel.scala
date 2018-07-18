@@ -233,8 +233,13 @@ object ObjectModel {
 			}
 			offsetUrn.objectComponentOption match {
 				case Some(oco) => {
-					val newOffset:Int = boundCollectionUrns.value.zipWithIndex.filter(_._1 == offsetUrn)(0)._2
-					ObjectModel.offset.value = newOffset
+					boundCollectionUrns.value.contains(offsetUrn) match {
+						case true => {
+							val newOffset:Int = boundCollectionUrns.value.zipWithIndex.filter(_._1 == offsetUrn)(0)._2
+							ObjectModel.offset.value = newOffset
+						}
+						case false => // Do nothing
+					}
 				}
 				case None => // Do nothing
 			}

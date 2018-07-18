@@ -93,6 +93,7 @@ object O2Query {
 	val queryFirstUrn:String = "/texts/firsturn/"
 
 	def getFirstUrn(jstring:String, urn:Option[Urn] = None):Unit = {
+
 		val ourn:Option[CtsUrn] = o2Json.o2CtsUrnString(jstring)
 		ourn match {
 			case Some(urn)	=> {
@@ -104,6 +105,7 @@ object O2Query {
 				O2Controller.validUrnInField.value = false
 			}
 		}
+
 	}
 
 	def getFirstNodeUrn(jstring:String, urn:Option[Urn] = None):Unit = {
@@ -176,7 +178,9 @@ object O2Query {
 				case Some(dv) => {
 					DSEModel.updateDsesForCurrentText(dv)
 				}
-				case None => DSEModel.clearDsesForCurrentText
+				case None => {
+					DSEModel.clearDsesForCurrentText
+				}
 			}
 			// we'll do the same for Commentary eventually…	
 			val commentsVec:Option[Vector[CiteTriple]] = o2Json.commentaryForCorpus(s)
