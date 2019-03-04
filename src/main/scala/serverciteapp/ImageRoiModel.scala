@@ -23,7 +23,7 @@ import js.annotation._
 	Cite and CTS Urns.
 */
 
-@JSExportTopLevel("serverciteapp.ImageRoiModel")
+@JSExportTopLevel("ImageRoiModel")
 object ImageRoiModel {
 
 	case class ImageRoi(imageUrn:Cite2Urn, rois:Vars[Roi]) {

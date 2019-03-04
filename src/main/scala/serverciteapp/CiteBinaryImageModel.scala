@@ -27,7 +27,7 @@ import js.annotation._
 	CiteBinaryImage datamodel. 
 */
 
-@JSExportTopLevel("serverciteapp.CiteBinaryImageModel")
+@JSExportTopLevel("CiteBinaryImageModel")
 object CiteBinaryImageModel {
 
 	// URNs for implemented Image models

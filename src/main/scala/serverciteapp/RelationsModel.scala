@@ -24,7 +24,7 @@ import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("serverciteapp.RelationsModel")
+@JSExportTopLevel("RelationsModel")
 object RelationsModel {
 	val foundRelations = Vars.empty[CiteTriple]
 

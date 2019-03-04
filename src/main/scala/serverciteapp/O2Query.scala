@@ -25,7 +25,7 @@ import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("serverciteapp.O2Query")
+@JSExportTopLevel("O2Query")
 object O2Query {
 
 

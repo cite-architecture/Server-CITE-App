@@ -23,7 +23,7 @@ import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("serverciteapp.CiteMainQuery")
+@JSExportTopLevel("CiteMainQuery")
 object CiteMainQuery {
 
 	val citeLibraryJson:CiteLibraryJson = CiteLibraryJson()
@@ -41,9 +41,6 @@ object CiteMainQuery {
 			if (xhr.status == 200) {
 				val contents:String = xhr.responseText
 				callback(contents, urn)
-				//callback(contents)
-				//CiteMainModel.requestParameterUrn.value = CiteMainController.getRequestUrn
-				//CiteMainController.updateRepository(contents)
 			} else {
 				CiteMainController.updateUserMessage(s"Request for info on remote library failed with code ${xhr.status}",2)
 			}

@@ -2,31 +2,31 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "serverciteapp"
 
-version := "1.9.3"
+version := "1.10.0"
 
-scalaVersion := "2.12.6"
+scalaVersion := "2.12.8"
 
 
 resolvers += Resolver.jcenterRepo
 resolvers += Resolver.bintrayRepo("neelsmith", "maven")
+resolvers += Resolver.bintrayRepo("eumaeus", "maven")
 resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases")
 
-val circeVersion = "0.9.0"
+val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
   "org.scala-js" %% "scalajs-stubs" % scalaJSVersion % "provided",
   "org.scala-js" %%% "scalajs-dom" % "0.9.5",
   "io.monix" %%% "monix" % "2.3.0",
-  "edu.holycross.shot.cite" %%% "xcite" % "3.4.0",
-  "edu.holycross.shot" %%% "ohco2" % "10.8.1",
-  "edu.holycross.shot" %%% "scm" % "6.1.0",
-  "edu.holycross.shot" %%% "citeobj" % "7.0.1",
+  "edu.holycross.shot.cite" %%% "xcite" % "4.0.2",
+  "edu.holycross.shot" %%% "ohco2" % "10.12.5",
+  "edu.holycross.shot" %%% "scm" % "6.2.0",
+  "edu.holycross.shot" %%% "citeobj" % "7.3.0",
   "edu.holycross.shot" %%% "dse" % "3.1.0",
   "edu.holycross.shot" %%% "citerelations" % "2.2.0",
   "edu.holycross.shot" %%% "citebinaryimage" % "1.1.2",
-  //"edu.holycross.shot" %%% "citejson" % "2.0.0" from "file:///cite/scala/unmanaged_jars/citejson_sjs0.6_2.12-2.0.0.jar",
-  "edu.holycross.shot" %%% "citejson" % "2.7.0",
-  "com.thoughtworks.binding" %%% "dom" % "11.0.1",
+  "edu.holycross.shot" %%% "citejson" % "2.10.0",
+  "com.thoughtworks.binding" %%% "dom" % "latest.version"
 )
 libraryDependencies ++= Seq(
   "io.circe" %%% "circe-core",

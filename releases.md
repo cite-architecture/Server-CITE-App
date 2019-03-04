@@ -1,5 +1,7 @@
 # Release notes
 
+**1.10.0**: Using OHCO2 10.12.5 and xCite 4.0.2.
+
 **1.9.3**: Commentary relations are transitive, at least as far as the Browse Texts tab is concerned.
 
 **1.9.2**: Fixed bug when including a URN as a request-parameter, when the URN is not in the data. Request-parameter URNs will automatically be loaded into the URN-text input field (CTS URNs only for 1.9.2).

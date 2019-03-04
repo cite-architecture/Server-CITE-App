@@ -18,7 +18,7 @@ import scala.scalajs.js.annotation.JSExport
 import js.annotation._
 
 
-@JSExportTopLevel("serverciteapp.CiteMainView")
+@JSExportTopLevel("CiteMainView")
 object CiteMainView {
 
 

@@ -23,7 +23,7 @@ import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("serverciteapp.DataModelView")
+@JSExportTopLevel("DataModelView")
 object DataModelView {
 
 @dom

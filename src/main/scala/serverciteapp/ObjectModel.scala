@@ -21,7 +21,7 @@ import monix.eval._
 import scala.scalajs.js.annotation.JSExport
 import js.annotation._
 
-@JSExportTopLevel("serverciteapp.ObjectModel")
+@JSExportTopLevel("ObjectModel")
 object ObjectModel {
 
 	// Binding up objects, their properties, and extensions

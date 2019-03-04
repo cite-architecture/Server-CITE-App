@@ -18,7 +18,7 @@ import js.annotation._
 import edu.holycross.shot.scm._
 
 
-@JSExportTopLevel("serverciteapp.CiteMainModel")
+@JSExportTopLevel("CiteMainModel")
 object CiteMainModel {
 
 		val serviceUrl = Var("")

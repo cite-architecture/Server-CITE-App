@@ -21,7 +21,7 @@ import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("serverciteapp.ObjectController")
+@JSExportTopLevel("ObjectController")
 object ObjectController {
 
 	def objectIsPresent(u:Cite2Urn):Boolean = {

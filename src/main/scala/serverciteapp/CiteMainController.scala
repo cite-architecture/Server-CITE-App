@@ -22,7 +22,7 @@ import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("serverciteapp.CiteMainController")
+@JSExportTopLevel("CiteMainController")
 object CiteMainController {
 
 

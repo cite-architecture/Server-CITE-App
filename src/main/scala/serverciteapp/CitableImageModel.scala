@@ -23,7 +23,7 @@ import js.annotation._
 	CiteBinaryImage datamodel. 
 */
 
-@JSExportTopLevel("serverciteapp.CitableImageModel")
+@JSExportTopLevel("CitableImageModel")
 object CitableImageModel {
 
  	case class ImageObject(val urn:Cite2Urn, val caption:String, val rights:String) {

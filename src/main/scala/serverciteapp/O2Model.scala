@@ -20,7 +20,7 @@ import monix.eval._
 import scala.scalajs.js.annotation.JSExport
 import js.annotation._
 
-@JSExportTopLevel("serverciteapp.O2Model")
+@JSExportTopLevel("O2Model")
 object O2Model {
 
 	var msgTimer:scala.scalajs.js.timers.SetTimeoutHandle = null
@@ -99,10 +99,7 @@ object O2Model {
 
 	def collapseToWorkUrn(urn:CtsUrn):CtsUrn = {
 		val s = {
-			urn.passageComponentOption match {
-				case Some(pc) => s"urn:cts:${urn.namespace}:${urn.textGroup}.${urn.work}:${pc}"
-				case None => s"urn:cts:${urn.namespace}:${urn.textGroup}.${urn.work}:"
-			}
+			s"urn:cts:${urn.namespace}:${urn.textGroup}.${urn.work}:${urn.passageComponent}"
 		}
 		val u = CtsUrn(s)
 		u
@@ -135,10 +132,7 @@ object O2Model {
 						}
 					}
 					val passageString:String = {
-						u.passageComponentOption match {
-							case Some(s) => s
-							case None => ""
-						}
+						u.passageComponent
 					}
 // in correct order to this point				
 					val boundVersionLabel = Var(versionLabel)
@@ -214,13 +208,11 @@ object O2Model {
 
 	def passageLevel(u:CtsUrn):Int = {
 		try {
-			val urn = u.dropSubref
-			if (urn.isRange) throw new Exception(s"Cannot report passage level for ${urn} becfause it is a range.")
-			urn.passageComponentOption match {
-				case Some(p) => {
-					p.split('.').size
-				}
-				case None => throw new Exception(s"Cannot report passage level for ${u} because it does not have a passage component.")
+			val vi:Vector[Int] = u.citationDepth
+			vi.size match {
+				case n if (n == 1 ) => vi(0)
+				case n if (n == 2) => throw new Exception(s"Cannot report passage level for ${urn} becfause it is a range.")
+				case _ => throw new Exception(s"Cannot report passage level for ${u} because it does not have a passage component.")
 			}
 		} catch {
 			case e:Exception => throw new Exception(s"${e}")	
@@ -232,11 +224,11 @@ object O2Model {
 			val urn = u.dropSubref
 			val pl:Int = passageLevel(urn)
 			if (pl < level) throw new Exception(s"${u} has a ${pl}-deep citation level, which is less than ${level}.")
-			urn.passageComponentOption match {
-				case Some(p) => {
-					p.split('.')(level-1)
+			urn.passageComponent.size match {
+				case n if (n > 0) => {
+					urn.passageComponent.split('.')(level-1)
 				}
-				case None => throw new Exception(s"Cannot report passage level for ${u} because it does not have a passage component.")
+				case _ => throw new Exception(s"Cannot report passage level for ${u} because it does not have a passage component.")
 			}
 		} catch {
 			case e:Exception => throw new Exception(s"${e}")	

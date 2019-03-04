@@ -24,7 +24,7 @@ import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("serverciteapp.CommentaryModel")
+@JSExportTopLevel("CommentaryModel")
 object CommentaryModel {
 
 	case class CiteComment(comment:Urn, text:Urn)

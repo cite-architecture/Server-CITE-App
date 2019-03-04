@@ -19,7 +19,7 @@ import monix.execution.Scheduler.Implicits.global
 import monix.eval._
 
 
-@JSExportTopLevel("serverciteapp.QueryObjectController")
+@JSExportTopLevel("QueryObjectController")
 object QueryObjectController {
 
 	def isValidSearch:Unit = {

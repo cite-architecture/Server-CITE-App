@@ -24,7 +24,7 @@ import monix.eval._
 
 import scala.scalajs.js.annotation.JSExport
 
-@JSExportTopLevel("serverciteapp.DSEModel")
+@JSExportTopLevel("DSEModel")
 object DSEModel {
 
 	val dsesForCurrentText = Vars.empty[DseRecord]

@@ -17,7 +17,7 @@ import monix.eval._
 import scala.scalajs.js.annotation.JSExport
 import js.annotation._
 
-@JSExportTopLevel("serverciteapp.NGModel")
+@JSExportTopLevel("NGModel")
 object NGModel {
 
 	var msgTimer:scala.scalajs.js.timers.SetTimeoutHandle = null
