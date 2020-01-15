@@ -27,24 +27,24 @@ import scala.scalajs.js.annotation.JSExport
 @JSExportTopLevel("DSEModel")
 object DSEModel {
 
-	val dsesForCurrentText = Vars.empty[DseRecord]
-	val dsesForCurrentObjects = Vars.empty[DseRecord]
-	val dsesForCurrentImage = Vars.empty[DseRecord]
+	val dsesForCurrentText = Vars.empty[DsePassage]
+	val dsesForCurrentObjects = Vars.empty[DsePassage]
+	val dsesForCurrentImage = Vars.empty[DsePassage]
 
 	def clearDsesForCurrentText:Unit    =  dsesForCurrentText.value.clear 
 	def clearDsesForCurrentObjects:Unit = dsesForCurrentObjects.value.clear 
 	def clearDsesForCurrentImage:Unit   = dsesForCurrentImage.value.clear 
 
 
-	def updateDsesForCurrentText(dseVec:Vector[DseRecord]) = {
+	def updateDsesForCurrentText(dseVec:Vector[DsePassage]) = {
 		dsesForCurrentText.value.clear
 		for (dr <- dseVec) { dsesForCurrentText.value += dr }
 	}
-	def updateDsesForCurrentObjects(dseVec:Vector[DseRecord]) = {
+	def updateDsesForCurrentObjects(dseVec:Vector[DsePassage]) = {
 		dsesForCurrentObjects.value.clear
 		for (dr <- dseVec) { dsesForCurrentObjects.value += dr }
 	}
-	def updateDsesForCurrentImage(dseVec:Vector[DseRecord]) = {
+	def updateDsesForCurrentImage(dseVec:Vector[DsePassage]) = {
 		dsesForCurrentImage.value.clear
 		for (dr <- dseVec) { dsesForCurrentImage.value += dr }
 	}
@@ -56,7 +56,7 @@ object DSEModel {
  				val filterList:Vector[Cite2Urn] = {
 	 				DSEModel.dsesForCurrentText.value.filter( du => {
 	 					du.passage == urn
-	 				}).map(_.citeObject.urn).toVector
+	 				}).map(_.urn).toVector
 	 			}
 	 			filterList.size match {
 	 				case 0 => Vars.empty[Cite2Urn]
@@ -92,9 +92,9 @@ object DSEModel {
 				dseUrns match {
 					case None => None
 					case Some(urns) => {
-						val dseRecs:Vector[DseRecord] = urns.map(u => {
-							val recs:Vector[DseRecord] =  dsesForCurrentObjects.value.filter(dseRec => {
-								dseRec.citeObject.urn == u
+						val dseRecs:Vector[DsePassage] = urns.map(u => {
+							val recs:Vector[DsePassage] =  dsesForCurrentObjects.value.filter(dseRec => {
+								dseRec.surface == u
 							}).toVector
 							recs
 						}).toVector.flatten
@@ -103,8 +103,8 @@ object DSEModel {
 						val roiVec:Vector[Option[ImageRoiModel.Roi]] = dseRecs.map( dr => {
 							val roiUrn:Cite2Urn = dr.imageroi
 							val textUrn:CtsUrn = dr.passage
-							val thisObject:CiteObject = dr.citeObject
-							val thisRoiObject:Option[ImageRoiModel.Roi] = ImageRoiModel.roiFromUrn(roiUrn, data = Some(textUrn), context = Some(thisObject.urn))
+							val thisObject:Cite2Urn = dr.surface
+							val thisRoiObject:Option[ImageRoiModel.Roi] = ImageRoiModel.roiFromUrn(roiUrn, data = Some(textUrn), context = Some(thisObject))
 							thisRoiObject
 						}).toVector
 						val realRois:Vector[ImageRoiModel.Roi] = roiVec.filter(_ != None).map(_.get)

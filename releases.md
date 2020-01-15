@@ -1,5 +1,7 @@
 # Release notes
 
+**1.10.0**: Using CiteJson 3.0.0.
+
 **1.10.0**: Using OHCO2 10.12.5 and xCite 4.0.2.
 
 **1.9.3**: Commentary relations are transitive, at least as far as the Browse Texts tab is concerned.

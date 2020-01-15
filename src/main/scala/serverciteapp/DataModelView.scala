@@ -217,7 +217,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 			case Some(uv) => {
 				//Then, see if it is represented in DSE
 				//val dseUrns:Option[Vector[Cite2Urn]] = DSEModel.implementedByDSE_image(propVal)
-				val dseUrnsVec:Vector[Cite2Urn] = DSEModel.dsesForCurrentObjects.value.filter(d => d.imageroi.dropExtensions == propVal.dropExtensions).map(_.citeObject.urn).toVector
+				val dseUrnsVec:Vector[Cite2Urn] = DSEModel.dsesForCurrentObjects.value.filter(d => d.imageroi.dropExtensions == propVal.dropExtensions).map(_.surface).toVector
 				val dseUrns:Option[Vector[Cite2Urn]] = {
 					dseUrnsVec.size match {
 						case n if (n < 1) => None
@@ -409,7 +409,7 @@ def textLinkItem(contextUrn:Option[Cite2Urn], u:CtsUrn, idString:String = "", gr
 				val currentUrn:CtsUrn = O2Model.urn.bind
 				<ul>{ 
 					for (u <- DSEModel.dsesForCurrentText) yield {
-						{ DataModelView.objectLinkItem(None, u.citeObject.urn, true).bind }
+						{ DataModelView.objectLinkItem(None, u.surface, true).bind }
 					}
 				} </ul>
 			}

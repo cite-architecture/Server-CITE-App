@@ -366,8 +366,9 @@ object CiteBinaryImageController {
 		val path:String = pathMap("path")
 		val url:String = pathMap("url")
 
-      val bis:IIIFApi = IIIFApi(baseUrl = url, imagePath = path, maxWidth = Some(CiteBinaryImageModel.thumbnailMaxWidth))
-      val imageUrlString:String = bis.serviceRequest(urn)
+      val bis:IIIFApi = IIIFApi(baseUrl = url, imagePath = path)
+      //val bis:IIIFApi = IIIFApi(baseUrl = url, imagePath = path, maxWidth = Some(CiteBinaryImageModel.thumbnailMaxWidth))
+      val imageUrlString:String = bis.serviceRequest(urn, maxWidth = Some(CiteBinaryImageModel.thumbnailMaxWidth) )
 
       imageUrlString
 	}

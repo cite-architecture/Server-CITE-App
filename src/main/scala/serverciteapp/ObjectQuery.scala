@@ -130,7 +130,7 @@ object ObjectQuery {
 	def getObject(jstring:String, urn:Option[Urn] = None):Unit = {
 		try {
 			// grab any DSE records that came with this corpus!
-			val dseVec:Option[Vector[DseRecord]] = objJson.dsesForVectorOfCiteObjects(jstring)
+			val dseVec:Option[Vector[DsePassage]] = objJson.dsesForVectorOfCiteObjects(jstring)
 			dseVec match {
 				case Some(dv) => {
 					DSEModel.updateDsesForCurrentObjects(dv)
@@ -177,7 +177,7 @@ object ObjectQuery {
 				}
 			}
 			// grab any DSE records that came with this corpus!
-			val dseVec:Option[Vector[DseRecord]] = objJson.dsesForVectorOfCiteObjects(jstring)
+			val dseVec:Option[Vector[DsePassage]] = objJson.dsesForVectorOfCiteObjects(jstring)
 			dseVec match {
 				case Some(dv) => DSEModel.updateDsesForCurrentObjects(dv)
 				case None => DSEModel.clearDsesForCurrentObjects

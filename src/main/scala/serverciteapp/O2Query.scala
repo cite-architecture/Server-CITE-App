@@ -173,7 +173,7 @@ object O2Query {
 			val vcn:Vector[CitableNode] = o2Json.o2VectorOfCitableNodes(s)
 
 			// grab any DSE records that came with this corpus!
-			val dseVec:Option[Vector[DseRecord]] = o2Json.dsesForCorpus(s)
+			val dseVec:Option[Vector[DsePassage]] = o2Json.dsesForCorpus(s)
 			dseVec match {
 				case Some(dv) => {
 					DSEModel.updateDsesForCurrentText(dv)

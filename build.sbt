@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "serverciteapp"
 
-version := "1.10.0"
+version := "1.11.0"
 
 scalaVersion := "2.12.8"
 
@@ -16,16 +16,16 @@ val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
   "org.scala-js" %% "scalajs-stubs" % scalaJSVersion % "provided",
-  "org.scala-js" %%% "scalajs-dom" % "0.9.5",
+  "org.scala-js" %%% "scalajs-dom" % "0.9.7",
   "io.monix" %%% "monix" % "2.3.0",
-  "edu.holycross.shot.cite" %%% "xcite" % "4.0.2",
-  "edu.holycross.shot" %%% "ohco2" % "10.12.5",
-  "edu.holycross.shot" %%% "scm" % "6.2.0",
-  "edu.holycross.shot" %%% "citeobj" % "7.3.0",
-  "edu.holycross.shot" %%% "dse" % "3.1.0",
-  "edu.holycross.shot" %%% "citerelations" % "2.2.0",
-  "edu.holycross.shot" %%% "citebinaryimage" % "1.1.2",
-  "edu.holycross.shot" %%% "citejson" % "2.10.0",
+  "edu.holycross.shot.cite" %%% "xcite" % "4.2.0",
+  "edu.holycross.shot" %%% "ohco2" % "10.18.2",
+  "edu.holycross.shot" %%% "scm" % "7.2.0",
+  "edu.holycross.shot" %%% "citeobj" % "7.4.0",
+  "edu.holycross.shot" %%% "dse" % "6.0.3",
+  "edu.holycross.shot" %%% "citerelations" % "2.6.0",
+  "edu.holycross.shot" %%% "citebinaryimage" % "3.1.1",
+  "edu.holycross.shot" %%% "citejson" % "3.0.0",
   "com.thoughtworks.binding" %%% "dom" % "latest.version"
 )
 libraryDependencies ++= Seq(
@@ -49,8 +49,8 @@ import java.io.PrintWriter
 spa := {
 
 //	val defaultLibraryUrl = "https://raw.githubusercontent.com/cite-architecture/citedx/master/libraries/millionplus.cex"
-  val defaultServiceUrl = "http://beta.hpcc.uh.edu/scs"
-//  val defaultServiceUrl = "http://localhost:9000"
+  //val defaultServiceUrl = "http://beta.hpcc.uh.edu/scs"
+  val defaultServiceUrl = "http://localhost:9000"
 
   val compileFirst = (fullOptJS in Compile).value
 
