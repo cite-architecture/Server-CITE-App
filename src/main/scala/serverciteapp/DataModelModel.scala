@@ -35,10 +35,13 @@ object DataModelModel {
 		//Cite2Urn("urn:cite2:cite:datamodels.v1:tbsmodel"),
 		// Defines a "documented scholarly editions" model of surface + image + text
 		Cite2Urn("urn:cite2:cite:datamodels.v1:dsemodel"),
+		// Defines a CITE Collection property of type `text` more precisely
+		Cite2Urn("urn:cite2:cite:datamodels.v1:extensions_text")
 	)
 
 	val dataModels = Var[Option[Vector[DataModel]]](None)
 
+	val extendedTextProperties = Var[Option[Vector[(Cite2Urn, String)]]](None)
    		
 
 

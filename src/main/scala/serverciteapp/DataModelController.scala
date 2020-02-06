@@ -142,6 +142,26 @@ object DataModelController {
 		}
 	}
 
+/*
+	Given a Cite2Urn, see if it identifies a property that is of type 'text' and is
+	extended by a published protocol
+	*/
+	// Returns None, or the type of extension
+	def textPropertyIsExtended(propUrn:Cite2Urn):Option[String] = {
+		DataModelModel.extendedTextProperties.value match {
+			case None => None
+			case Some( vecTups ) => {
+				vecTups.filter( _._1 == propUrn.dropSelector).size match {
+					case n if (n < 1 ) => None
+					case _ => {
+						val s = vecTups.filter( _._1 == propUrn.dropSelector).head._2
+						Some(s)
+					}
+				}
+			}
+		}	
+	}
+
 
  	/*
 	Methods for switching tabs and loading text and objects

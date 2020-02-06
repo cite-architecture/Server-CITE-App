@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "serverciteapp"
 
-version := "1.11.0"
+version := "2.0.1"
 
 scalaVersion := "2.12.8"
 
@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "edu.holycross.shot" %%% "citerelations" % "2.6.0",
   "edu.holycross.shot" %%% "citebinaryimage" % "3.1.1",
   "edu.holycross.shot" %%% "citejson" % "3.0.0",
+  "com.github.karasiq" %%% "scalajs-marked" % "1.0.2",
   "com.thoughtworks.binding" %%% "dom" % "latest.version"
 )
 libraryDependencies ++= Seq(
@@ -50,7 +51,7 @@ spa := {
 
 //	val defaultLibraryUrl = "https://raw.githubusercontent.com/cite-architecture/citedx/master/libraries/millionplus.cex"
   //val defaultServiceUrl = "http://beta.hpcc.uh.edu/scs"
-  val defaultServiceUrl = "http://localhost:9000"
+  val defaultServiceUrl = "http://localhost:9099"
 
   val compileFirst = (fullOptJS in Compile).value
 

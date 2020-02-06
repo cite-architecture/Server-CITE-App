@@ -88,16 +88,16 @@ object DSEModel {
 
 			// Get ROI objects for all objects in dseUrns mapped to this image
 			val allRois:Option[Vector[ImageRoiModel.Roi]] = {
-
 				dseUrns match {
 					case None => None
 					case Some(urns) => {
-						val dseRecs:Vector[DsePassage] = urns.map(u => {
+						val dseRecs:Vector[DsePassage] = urns.distinct.map(u => {
 							val recs:Vector[DsePassage] =  dsesForCurrentObjects.value.filter(dseRec => {
 								dseRec.surface == u
 							}).toVector
 							recs
 						}).toVector.flatten
+
 						if (dseRecs.size < 0) throw new Exception(s"DSEModel: unaccountably failed to find matches for ${urn}")	
 
 						val roiVec:Vector[Option[ImageRoiModel.Roi]] = dseRecs.map( dr => {

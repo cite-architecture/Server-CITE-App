@@ -116,15 +116,7 @@ object CiteBinaryImageModel {
 	@dom
 	def loadROIs(rois:Vector[ImageRoiModel.Roi]):Unit = {
 		clearROIs
-		/*
-		for ( (roi,i) <- rois.zipWithIndex){
-			g.console.log(s"roi = ${roi}, i = ${i}")
-			val t:(Int,ImageRoiModel.Roi) = (i, roi)
-			g.console.log("assigned 't'. Adding to imageRoiTuple…")
-			CiteBinaryImageModel.imageRoiTuple.value += t
-			g.console.log("back from assign imageRoiTupe\n")
-		}
-		*/
+		
 		val tempRoiVec:Vector[(Int,ImageRoiModel.Roi)] = {
 			rois.zipWithIndex.map( rt => {
 				val t:(Int,ImageRoiModel.Roi) = (rt._2, rt._1)
@@ -142,16 +134,6 @@ object CiteBinaryImageModel {
 			case None => imageRoiGroupSeq.value.clear
 		}
 
-	}
-
-	
-	def addToROIs(roi:ImageRoiModel.Roi):Unit = {
-			val i = imageRoiTuple.value.size
-			val t:(Int,ImageRoiModel.Roi) = (i, roi)
-			CiteBinaryImageModel.imageRoiTuple.value += t
-		   val roiPreVec =  CiteBinaryImageModel.imageRoiTuple.value.map(_._2).toVector
-		   imageRoiGroups.value = None // Clear it out
-		   imageRoiGroups.value = CiteBinaryImageController.groupsForROIs(roiPreVec)
 	}
 
 	def imageRoisToOptionVector:Option[Vector[ImageRoiModel.Roi]] = {

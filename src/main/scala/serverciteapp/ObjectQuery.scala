@@ -60,6 +60,7 @@ object ObjectQuery {
 				ObjectController.updateUserMessage(s"Updated collections repository with ${ObjectModel.collections.value.size} collections.",0)
 
 				// Load request parameter
+				/* Moved to after images load!
 				CiteMainModel.requestParameterUrn.value match {
 					case Some(u) => {
 						u match {
@@ -72,6 +73,7 @@ object ObjectQuery {
 					}	
 					case None => // do nothing
 				}
+				*/
 			}				
 			case None => {
 				ObjectModel.collections.value.clear

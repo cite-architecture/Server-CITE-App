@@ -115,7 +115,7 @@ object CiteMainController {
 			//     of building out CiteBinaryImages
 			val dmTask = Task{ CiteMainQuery.getJson(CiteMainQuery.getDataModels, s"/datamodels", urn = None) }
 			val dmFuture = dmTask.runAsync	
-
+			
 			
 
 		} catch  {

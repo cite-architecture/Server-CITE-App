@@ -81,8 +81,12 @@ object CiteMainQuery {
 					/*
 					CommentaryModel.loadAllComments
 					*/
+
+					// We can build out our list of extended text properties here
+					ExtendedTextPropertyQuery.getExtendedTextProperties
 			
 					// Start the process of building a binary image collection repo
+					// NOTE: At the _end_ of this, we will look for param-urns!
 					CiteBinaryImageModel.initBinaryImageRepo
 			
 				}

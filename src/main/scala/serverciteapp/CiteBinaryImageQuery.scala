@@ -131,6 +131,24 @@ object CiteBinaryImageQuery {
 			   	 CiteMainController.updateUserMessage(s"Binary Images are configured and ready. Image collections: ${CiteBinaryImageModel.binaryImageCollectionCatalog.value.get.collections.size}",0)
 			   	 /* And finally… */
 			   	 CiteBinaryImageController.discoverProtocols
+			   	 /* And we don't process param URNs until now! */
+
+					// Load request parameter
+					CiteMainModel.requestParameterUrn.value match {
+						case Some(u) => {
+							u match {
+								case Cite2Urn(c2u) => {
+									DataModelController.retrieveObject(None, Cite2Urn(c2u))
+									CiteMainView.changeTab("object")
+								}
+								case _ => // do nothing
+							}
+						}	
+						case None => // do nothing
+					}
+				
+
+
 				}
 				case _ => {
 					// No catalog… something is badly wrong	

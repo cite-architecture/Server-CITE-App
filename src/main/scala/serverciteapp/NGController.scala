@@ -124,7 +124,6 @@ object NGController {
 				}
 			}	
 		}	
-		//g.console.log(s"Querying for: ${qString}")
 		
 		val task = Task{ CiteMainQuery.getJson(NGQuery.getFindNgrams, qString, urn = q.urn) }
 		val future = task.runAsync	
