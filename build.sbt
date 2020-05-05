@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin, BuildInfoPlugin)
 
 name := "serverciteapp"
 
-version := "2.0.1"
+version := "2.1.0"
 
 scalaVersion := "2.12.8"
 
@@ -51,6 +51,7 @@ spa := {
 
 //	val defaultLibraryUrl = "https://raw.githubusercontent.com/cite-architecture/citedx/master/libraries/millionplus.cex"
   //val defaultServiceUrl = "http://beta.hpcc.uh.edu/scs"
+  //val defaultServiceUrl = "http://folio2.furman.edu/xolotl"
   val defaultServiceUrl = "http://localhost:9099"
 
   val compileFirst = (fullOptJS in Compile).value

@@ -1,5 +1,7 @@
 # Release notes
 
+**2.1.0**: Now handling Commentary relations very literally, according to the Cite Relations in the data; no longer trying to be clever.
+
 **2.0.1**: Fixed bug where ROIs mapped to images would appear N^2 times in the sidebar of the image-view.
 
 **2.0.0**: Update DSE library (a breaking change). Incorporating Extended String Types for including Markdown and geo-spatial references in Object properties. Improved timing for asynchronous image loading from a paramter URN.
